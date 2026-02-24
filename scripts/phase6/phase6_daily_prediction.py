@@ -499,8 +499,17 @@ def fetch_today_data(conn, target_date: str):
     
     logger.info(f"✅ 派生特徴量生成完了")
     
+    # ===== race_id を先に生成（カテゴリエンコード前に） =====
+    df['race_id'] = (
+        df['kaisai_nen'].astype(str) +
+        df['kaisai_tsukihi'].astype(str).str.zfill(4) +
+        df['keibajo_code'].astype(str).str.zfill(2) +
+        df['race_bango'].astype(str).str.zfill(2)
+    )
+    logger.info(f"✅ race_id 生成完了（サンプル: {df['race_id'].iloc[0] if len(df) > 0 else 'なし'}）")
+    
     # ===== 表示用カラムを別途保存 =====
-    display_col_names = ['bamei', 'kishumei_ryakusho', 'chokyoshimei_ryakusho', 'banushimei']
+    display_col_names = ['bamei', 'kishumei_ryakusho', 'chokyoshimei_ryakusho', 'banushimei', 'keibajo_code', 'kaisai_tsukihi', 'race_bango', 'umaban']
     display_data = {}
     for col in display_col_names:
         if col in df.columns:
@@ -517,7 +526,8 @@ def fetch_today_data(conn, target_date: str):
     df[categorical_cols] = df[categorical_cols].fillna('unknown')
     
     # 学習に不要なカラム（数値化しないカラム）
-    exclude_cols = ['race_id', 'kakutei_chakujun', 'ketto_toroku_bango']
+    # keibajo_code, kaisai_tsukihi, race_bango, umaban は race_id 生成に必要なので保護
+    exclude_cols = ['race_id', 'kakutei_chakujun', 'ketto_toroku_bango', 'keibajo_code', 'kaisai_tsukihi', 'race_bango', 'umaban']
     
     # カテゴリを数値エンコーディング（Phase 5と同じ）
     # 表示用カラムも含めて全て数値化（学習に必要）
@@ -579,14 +589,10 @@ def ensemble_predict(models, df, display_data):
     logger.info("アンサンブル予測実行")
     logger.info("=" * 80)
     
-    # race_id生成
+    # race_id は既に fetch_today_data() で生成済み
     if 'race_id' not in df.columns:
-        df['race_id'] = (
-            df['kaisai_nen'].astype(str) +
-            df['kaisai_tsukihi'].astype(str).str.zfill(4) +
-            df['keibajo_code'].astype(str).str.zfill(2) +
-            df['race_bango'].astype(str).str.zfill(2)
-        )
+        logger.error("❌ race_id が見つかりません。fetch_today_data() で生成されているはずです。")
+        raise ValueError("race_id カラムが存在しません")
     
     # 各モデルで予測
     try:
