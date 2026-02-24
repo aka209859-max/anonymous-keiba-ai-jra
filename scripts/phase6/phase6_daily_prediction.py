@@ -490,6 +490,14 @@ def fetch_today_data(conn, target_date: str):
     
     logger.info(f"✅ 派生特徴量生成完了")
     
+    # ===== 表示用カラムを別途保存 =====
+    display_col_names = ['bamei', 'kishumei_ryakusho', 'chokyoshimei_ryakusho', 'banushimei']
+    display_data = {}
+    for col in display_col_names:
+        if col in df.columns:
+            display_data[col] = df[col].copy()
+            logger.info(f"🔍 DEBUG: {col} を表示用として保存（サンプル: {df[col].iloc[0] if len(df) > 0 else 'なし'}）")
+    
     # ===== 欠損値処理 =====
     # 数値列は -1 埋め
     numeric_cols = df.select_dtypes(include=['int64', 'float64', 'Int32', 'float32']).columns
@@ -499,20 +507,19 @@ def fetch_today_data(conn, target_date: str):
     categorical_cols = df.select_dtypes(include=['object']).columns
     df[categorical_cols] = df[categorical_cols].fillna('unknown')
     
-    # 表示用カラムのリスト（数値化しないカラム）
-    display_cols = ['race_id', 'kakutei_chakujun', 'ketto_toroku_bango', 
-                    'bamei', 'kishumei_ryakusho', 'chokyoshimei_ryakusho', 'banushimei']
+    # 学習に不要なカラム（数値化しないカラム）
+    exclude_cols = ['race_id', 'kakutei_chakujun', 'ketto_toroku_bango']
     
     # カテゴリを数値エンコーディング（Phase 5と同じ）
-    # ただし表示用カラムは除外
+    # 表示用カラムも含めて全て数値化（学習に必要）
     for col in categorical_cols:
-        if col not in display_cols:
+        if col not in exclude_cols:
             df[col] = df[col].astype('category').cat.codes
     
-    logger.info(f"🔍 DEBUG: 数値化除外カラム = {[c for c in display_cols if c in df.columns]}")
-    logger.info(f"🔍 DEBUG: bamei カラム型（エンコード後） = {df['bamei'].dtype if 'bamei' in df.columns else 'なし'}")
-    
     logger.info(f"✅ 特徴量生成完了: {len(df)}行 × {len(df.columns)}列")
+    
+    # 表示用データを返却用に保持
+    df.attrs['display_data'] = display_data
     
     return df
 
@@ -654,6 +661,14 @@ def ensemble_predict(models, df):
     result_df = pd.concat(race_normalized, ignore_index=True)
     
     logger.info(f"✅ アンサンブルスコア計算完了")
+    
+    # 表示用データを復元
+    if 'display_data' in df.attrs:
+        display_data = df.attrs['display_data']
+        for col_name, col_data in display_data.items():
+            if len(col_data) == len(result_df):
+                result_df[col_name] = col_data.values
+                logger.info(f"🔍 DEBUG: {col_name} を復元（サンプル: {result_df[col_name].iloc[0] if len(result_df) > 0 else 'なし'}）")
     
     return result_df
 
