@@ -130,9 +130,8 @@ def parse_jrdb_file(file_path: Path, file_type: str) -> List[Dict]:
                     
                     # カラム名をPostgreSQLテーブルに合わせる
                     if col_name == 'nichi':
-                        # 16進数の日を kaisai_nichime に変換
-                        nichi_hex = hex_to_int(value)
-                        record['kaisai_nichime'] = str(nichi_hex)
+                        # 16進数の日を kaisai_nichime に格納（1文字のまま）
+                        record['kaisai_nichime'] = value  # 'a' → 'a' (変換しない)
                     elif col_name == 'kai':
                         # 回 → kaisai_kai
                         record['kaisai_kai'] = value
