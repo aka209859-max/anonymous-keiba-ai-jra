@@ -100,9 +100,7 @@ Write-Host "準備完了！PC-KEIBA で再登録を実行してください" -Fo
 Write-Host "========================================`n" -ForegroundColor Cyan
 
 Write-Host "再登録後の確認コマンド:" -ForegroundColor Yellow
-Write-Host @'
-$env:PGPASSWORD = "postgres123"
-& "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -d pckeiba -c "SELECT 'jrd_kyi' AS table_name, COUNT(*) FROM jrd_kyi UNION ALL SELECT 'jrd_cyb', COUNT(*) FROM jrd_cyb UNION ALL SELECT 'jrd_joa', COUNT(*) FROM jrd_joa UNION ALL SELECT 'jrd_sed', COUNT(*) FROM jrd_sed UNION ALL SELECT 'jrd_bac', COUNT(*) FROM jrd_bac ORDER BY table_name;"
-& "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -d pckeiba -c "SELECT race_shikonen, LENGTH(race_shikonen) AS len, keibajo_code, race_bango, bamei FROM jrd_kyi ORDER BY race_shikonen DESC LIMIT 10;"
-Remove-Item Env:\PGPASSWORD
-'@ -ForegroundColor White
+Write-Host '$env:PGPASSWORD = "postgres123"' -ForegroundColor White
+Write-Host '& "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -d pckeiba -c "SELECT ''jrd_kyi'' AS table_name, COUNT(*) FROM jrd_kyi UNION ALL SELECT ''jrd_cyb'', COUNT(*) FROM jrd_cyb UNION ALL SELECT ''jrd_joa'', COUNT(*) FROM jrd_joa UNION ALL SELECT ''jrd_sed'', COUNT(*) FROM jrd_sed UNION ALL SELECT ''jrd_bac'', COUNT(*) FROM jrd_bac ORDER BY table_name;"' -ForegroundColor White
+Write-Host '& "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -d pckeiba -c "SELECT race_shikonen, LENGTH(race_shikonen) AS len, keibajo_code, race_bango, bamei FROM jrd_kyi ORDER BY race_shikonen DESC LIMIT 10;"' -ForegroundColor White
+Write-Host 'Remove-Item Env:\PGPASSWORD' -ForegroundColor White
