@@ -153,16 +153,25 @@ def fetch_today_data(conn, target_date: str):
     WHERE ra.kaisai_nen = '{kaisai_nen}'
       AND ra.kaisai_tsukihi = '{kaisai_tsukihi}'
       AND CAST(se.umaban AS INTEGER) <= 18
-    ORDER BY ra.kaisai_nen, ra.kaisai_tsukihi, ra.race_bango, se.umaban
+    ORDER BY ra.kaisai_nen, ra.kaisai_tsukihi, ra.keibajo_code, ra.race_bango, se.umaban
     """
     
     df = pd.read_sql_query(query_basic, conn)
+    
+    # keibajo_code を文字列型として保持（'05' → 5 に変換されるのを防ぐ）
+    if 'keibajo_code' in df.columns:
+        df['keibajo_code'] = df['keibajo_code'].astype(str).str.zfill(2)
     
     if len(df) == 0:
         logger.error(f"❌ {target_date} のデータが見つかりません")
         sys.exit(1)
     
     logger.info(f"✅ 基礎情報: {len(df)}頭（{df['race_bango'].nunique()}レース）")
+    
+    # デバッグ: 競馬場コードと開催情報を確認
+    logger.info(f"🔍 DEBUG: keibajo_code 型 = {df['keibajo_code'].dtype}")
+    logger.info(f"🔍 DEBUG: 開催競馬場 = {df['keibajo_code'].unique()}")
+    logger.info(f"🔍 DEBUG: レース番号範囲 = {df['race_bango'].min()}〜{df['race_bango'].max()}")
     
     # デバッグ: bamei の型と最初の5行を確認
     logger.info(f"🔍 DEBUG: bamei カラム型 = {df['bamei'].dtype}")
@@ -743,8 +752,16 @@ def save_predictions(result_df, target_date: str):
         except Exception as e:
             logger.warning(f"  馬番フィルタリングエラー: {e}")
     
+    # keibajo_code を文字列型に統一（'05', '09', '10'）
+    if 'keibajo_code' in result_df.columns:
+        result_df['keibajo_code'] = result_df['keibajo_code'].astype(str).str.zfill(2)
+    
     # 競馬場名追加
     result_df['keibajo_name'] = result_df['keibajo_code'].map(keibajo_names)
+    
+    # デバッグ: マッピング結果確認
+    logger.info(f"🔍 DEBUG: keibajo_code ユニーク値 = {result_df['keibajo_code'].unique()}")
+    logger.info(f"🔍 DEBUG: keibajo_name ユニーク値 = {result_df['keibajo_name'].unique()}")
     
     # レース別にMarkdownレポート生成
     report_lines = []
@@ -1057,6 +1074,10 @@ def save_additional_formats(result_df, target_date: str):
         '01': '札幌', '02': '函館', '03': '福島', '04': '新潟', '05': '東京',
         '06': '中山', '07': '中京', '08': '京都', '09': '阪神', '10': '小倉'
     }
+    
+    # keibajo_code を文字列型に統一（'05', '09', '10'）
+    if 'keibajo_code' in result_df.columns:
+        result_df['keibajo_code'] = result_df['keibajo_code'].astype(str).str.zfill(2)
     
     # keibajo_name カラムが無い場合は追加
     if 'keibajo_name' not in result_df.columns:
