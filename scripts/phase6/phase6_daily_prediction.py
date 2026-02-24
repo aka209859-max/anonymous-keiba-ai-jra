@@ -77,7 +77,7 @@ def fetch_today_data(conn, target_date: str):
         target_date: 対象日（'YYYYMMDD'形式、例: '20260221'）
     
     Returns:
-        DataFrame（139列特徴量）
+        tuple: (DataFrame（139列特徴量）, dict（表示用データ）)
     """
     logger = logging.getLogger(__name__)
     logger.info(f"=" * 80)
@@ -518,10 +518,8 @@ def fetch_today_data(conn, target_date: str):
     
     logger.info(f"✅ 特徴量生成完了: {len(df)}行 × {len(df.columns)}列")
     
-    # 表示用データを返却用に保持
-    df.attrs['display_data'] = display_data
-    
-    return df
+    # 表示用データを別途返却
+    return df, display_data
 
 # ============================================================================
 # Phase 5ロジック: アンサンブル予測
@@ -565,7 +563,7 @@ def load_models():
     
     return models
 
-def ensemble_predict(models, df):
+def ensemble_predict(models, df, display_data):
     """アンサンブル予測（Phase 5と同じロジック）"""
     logger = logging.getLogger(__name__)
     logger.info("\n" + "=" * 80)
@@ -663,12 +661,10 @@ def ensemble_predict(models, df):
     logger.info(f"✅ アンサンブルスコア計算完了")
     
     # 表示用データを復元
-    if 'display_data' in df.attrs:
-        display_data = df.attrs['display_data']
-        for col_name, col_data in display_data.items():
-            if len(col_data) == len(result_df):
-                result_df[col_name] = col_data.values
-                logger.info(f"🔍 DEBUG: {col_name} を復元（サンプル: {result_df[col_name].iloc[0] if len(result_df) > 0 else 'なし'}）")
+    for col_name, col_data in display_data.items():
+        if len(col_data) == len(result_df):
+            result_df[col_name] = col_data.values
+            logger.info(f"🔍 DEBUG: {col_name} を復元（サンプル: {result_df[col_name].iloc[0] if len(result_df) > 0 else 'なし'}）")
     
     return result_df
 
@@ -887,13 +883,13 @@ def main():
         logger.info("✅ データベース接続成功")
         
         # 2. 当日データ取得 & 139列特徴量生成
-        df = fetch_today_data(conn, target_date)
+        df, display_data = fetch_today_data(conn, target_date)
         
         # 3. モデル読み込み
         models = load_models()
         
         # 4. アンサンブル予測
-        result_df = ensemble_predict(models, df)
+        result_df = ensemble_predict(models, df, display_data)
         
         # 5. 予測結果保存
         save_predictions(result_df, target_date)
