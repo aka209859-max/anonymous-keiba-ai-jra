@@ -847,6 +847,200 @@ def save_predictions(result_df, target_date: str):
     logger.info(f"  レース数: {result_df['race_id'].nunique()}レース")
 
 # ============================================================================
+# 追加出力フォーマット（note / ブッカーズ / Twitter）
+# ============================================================================
+
+def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA"):
+    """note形式の予想レポートを生成"""
+    lines = []
+    lines.append(f"# 🏇 {keibajo_name}競馬 AI予想")
+    lines.append(f"")
+    lines.append(f"**開催日**: {target_date[:4]}年{target_date[4:6]}月{target_date[6:8]}日  ")
+    lines.append(f"**対象レース**: {result_df.groupby('race_id').ngroups}R  ")
+    lines.append(f"")
+    lines.append(f"---")
+    lines.append(f"")
+    lines.append(f"## 📋 予想結果一覧")
+    lines.append(f"")
+    
+    for race_id, group in result_df.groupby('race_id'):
+        group = group.sort_values('predicted_rank').reset_index(drop=True)
+        race_no = int(group.iloc[0]['race_bango'])
+        
+        lines.append(f"")
+        lines.append(f"## 🏇 第{race_no}R 予想")
+        lines.append(f"")
+        lines.append(f"### 📊 予想順位")
+        lines.append(f"")
+        
+        for idx, row in group.iterrows():
+            rank = int(row['predicted_rank'])
+            umaban = int(row['umaban'])
+            bamei = str(row.get('bamei', f"{umaban}番馬")).strip()
+            score = row['ensemble_score']
+            score_rank = get_score_rank(score)
+            
+            if rank <= 3:
+                lines.append(f"**{rank}. {umaban}番 {bamei}** （スコア: {score:.2f} / {score_rank}）")
+            else:
+                lines.append(f"{rank}. {umaban}番 {bamei} （スコア: {score:.2f} / {score_rank}）")
+        
+        lines.append(f"")
+        lines.append(f"### 💰 購入推奨")
+        lines.append(f"")
+        
+        top_horses = group.head(6)
+        recommendations = generate_betting_recommendations(top_horses)
+        lines.append(recommendations)
+        lines.append(f"")
+        lines.append(f"")
+        lines.append(f"---")
+        lines.append(f"")
+    
+    return '\n'.join(lines)
+
+def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JRA"):
+    """ブッカーズ形式の予想レポートを生成"""
+    lines = []
+    lines.append(f"🏇 【地方競馬AI】{keibajo_name}競馬 全{result_df.groupby('race_id').ngroups}R予想")
+    lines.append(f"")
+    lines.append(f"📅 {target_date[:4]}年{target_date[4:6]}月{target_date[6:8]}日({datetime.strptime(target_date, '%Y%m%d').strftime('%a')})")
+    lines.append(f"")
+    lines.append(f"本日はAI予想システムによる分析結果をお届けします。")
+    lines.append(f"過去の膨大なレースデータから、今日の馬場状態と出走馬の相性を完全数値化しました。")
+    lines.append(f"")
+    lines.append(f"---")
+    
+    for race_id, group in result_df.groupby('race_id'):
+        group = group.sort_values('predicted_rank').reset_index(drop=True)
+        race_no = int(group.iloc[0]['race_bango'])
+        top_horses = group.head(5)
+        
+        lines.append(f"")
+        lines.append(f"")
+        lines.append(f"🏁 第{race_no}R 予想結果")
+        lines.append(f"")
+        lines.append(f"🎯 AI推奨馬")
+        lines.append(f"")
+        
+        for idx, row in top_horses.iterrows():
+            umaban = int(row['umaban'])
+            bamei = str(row.get('bamei', f"{umaban}番馬")).strip()
+            score = row['ensemble_score']
+            score_rank = get_score_rank(score)
+            rank = int(row['predicted_rank'])
+            
+            if rank == 1:
+                lines.append(f"◎ {umaban} {bamei} (ランク{score_rank})")
+                lines.append(f"AIスコア: {score:.2f}")
+            elif rank == 2:
+                lines.append(f"")
+                lines.append(f"○ {umaban} {bamei} (ランク{score_rank})")
+                lines.append(f"AIスコア: {score:.2f}")
+            elif rank == 3:
+                lines.append(f"")
+                lines.append(f"▲ {umaban} {bamei} (ランク{score_rank})")
+                lines.append(f"AIスコア: {score:.2f}")
+            elif rank == 4:
+                lines.append(f"")
+                lines.append(f"△ {umaban} {bamei}")
+            elif rank == 5:
+                lines.append(f"△ {umaban} {bamei}")
+        
+        lines.append(f"")
+        lines.append(f"💰 購入推奨（買い目）")
+        lines.append(f"")
+        lines.append(f"【単勝/複勝】")
+        
+        honmei = top_horses.iloc[0]
+        aite = top_horses.iloc[1] if len(top_horses) >= 2 else None
+        lines.append(f"・単勝：{int(honmei['umaban'])}")
+        if aite is not None:
+            lines.append(f"・複勝：{int(honmei['umaban'])}, {int(aite['umaban'])}")
+        
+        if len(top_horses) >= 3:
+            lines.append(f"")
+            lines.append(f"【馬単/馬連】")
+            uma1, uma2, uma3 = int(top_horses.iloc[0]['umaban']), int(top_horses.iloc[1]['umaban']), int(top_horses.iloc[2]['umaban'])
+            lines.append(f"・{uma1} ↔ {uma2}, {uma3} (各2点)")
+        
+        if len(top_horses) >= 6:
+            lines.append(f"")
+            lines.append(f"【三連複】")
+            box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(6)])
+            lines.append(f"・三連複：{uma1}.{uma2} - {box_nums} - {box_nums}")
+        
+        lines.append(f"")
+        lines.append(f"")
+        lines.append(f"---")
+    
+    return '\n'.join(lines)
+
+def generate_twitter_format(result_df, target_date: str, keibajo_name: str = "JRA"):
+    """Twitter形式の予想を生成"""
+    lines = []
+    
+    month = target_date[4:6]
+    day = target_date[6:8]
+    weekday_short = datetime.strptime(target_date, '%Y%m%d').strftime('%a')
+    weekday_map = {'Mon': '月', 'Tue': '火', 'Wed': '水', 'Thu': '木', 'Fri': '金', 'Sat': '土', 'Sun': '日'}
+    weekday_ja = weekday_map.get(weekday_short, weekday_short)
+    
+    for race_id, group in result_df.groupby('race_id'):
+        group = group.sort_values('predicted_rank').reset_index(drop=True)
+        race_no = int(group.iloc[0]['race_bango'])
+        top_horses = group.head(6)
+        
+        lines.append(f"{month}/{day}（{weekday_ja}）{keibajo_name}{race_no}R")
+        
+        honmei = top_horses.iloc[0]
+        aite = top_horses.iloc[1] if len(top_horses) >= 2 else None
+        lines.append(f"単勝：{int(honmei['umaban'])}")
+        if aite is not None:
+            lines.append(f"複勝：{int(honmei['umaban'])}, {int(aite['umaban'])}")
+        
+        if len(top_horses) >= 3:
+            uma1, uma2, uma3 = int(top_horses.iloc[0]['umaban']), int(top_horses.iloc[1]['umaban']), int(top_horses.iloc[2]['umaban'])
+            lines.append(f"馬単：{uma1}→{uma2}、{uma2}→{uma1}、{uma1}→{uma3}、{uma3}→{uma1}")
+        
+        if len(top_horses) >= 6:
+            box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(6)])
+            lines.append(f"三連複：{uma1}.{uma2} - {box_nums} - {box_nums}")
+        
+        lines.append(f"")
+        lines.append(f"=" * 50)
+        lines.append(f"")
+    
+    return '\n'.join(lines)
+
+def save_additional_formats(result_df, target_date: str, keibajo_name: str = "JRA"):
+    """note/ブッカーズ/Twitter形式で保存"""
+    logger = logging.getLogger(__name__)
+    output_dir = Path('results')
+    output_dir.mkdir(exist_ok=True)
+    
+    # note形式
+    note_content = generate_note_format(result_df, target_date, keibajo_name)
+    note_path = output_dir / f"{keibajo_name}_{target_date}_note.txt"
+    with open(note_path, 'w', encoding='utf-8') as f:
+        f.write(note_content)
+    logger.info(f"  📝 note形式: {note_path} ({note_path.stat().st_size / 1024:.2f} KB)")
+    
+    # ブッカーズ形式
+    bookers_content = generate_bookers_format(result_df, target_date, keibajo_name)
+    bookers_path = output_dir / f"{keibajo_name}_{target_date}_bookers.txt"
+    with open(bookers_path, 'w', encoding='utf-8') as f:
+        f.write(bookers_content)
+    logger.info(f"  📚 ブッカーズ形式: {bookers_path} ({bookers_path.stat().st_size / 1024:.2f} KB)")
+    
+    # Twitter形式
+    twitter_content = generate_twitter_format(result_df, target_date, keibajo_name)
+    twitter_path = output_dir / f"{keibajo_name}_{target_date}_tweet.txt"
+    with open(twitter_path, 'w', encoding='utf-8') as f:
+        f.write(twitter_content)
+    logger.info(f"  🐦 Twitter形式: {twitter_path} ({twitter_path.stat().st_size / 1024:.2f} KB)")
+
+# ============================================================================
 # メイン処理
 # ============================================================================
 
@@ -887,6 +1081,9 @@ def main():
         
         # 5. 予測結果保存
         save_predictions(result_df, target_date)
+        
+        # 6. 追加フォーマット保存（note/ブッカーズ/Twitter）
+        save_additional_formats(result_df, target_date, keibajo_name="JRA")
         
         logger.info("\n" + "=" * 80)
         logger.info("✅ Phase 6 完了！")
