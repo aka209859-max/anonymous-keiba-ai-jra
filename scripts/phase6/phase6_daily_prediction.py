@@ -764,13 +764,6 @@ def save_predictions(result_df, target_date: str):
         keibajo_name = race_info['keibajo_name']
         race_no = int(race_info['race_bango'])
         
-        # レース内でスコア正規化（最高スコア=1.00）
-        max_score = group['ensemble_score'].max()
-        if max_score > 0:
-            group['normalized_score'] = group['ensemble_score'] / max_score
-        else:
-            group['normalized_score'] = 0.5
-        
         # レース情報ヘッダー
         report_lines.append(f"## 🏇 {keibajo_name} 第{race_no}R 予想")
         report_lines.append(f"")
@@ -790,7 +783,8 @@ def save_predictions(result_df, target_date: str):
                 bamei = str(int(bamei_raw))
             else:
                 bamei = str(bamei_raw).strip() if hasattr(bamei_raw, 'strip') else str(bamei_raw)
-            score = row['normalized_score']
+            # 元のスコアを使用（正規化なし）
+            score = row['ensemble_score']
             score_rank = get_score_rank(score)
             
             if rank <= 3:
@@ -822,7 +816,7 @@ def save_predictions(result_df, target_date: str):
             else:
                 bamei = str(bamei_raw).strip() if hasattr(bamei_raw, 'strip') else str(bamei_raw)
             logger.info(f"  {int(row['predicted_rank'])}. {int(row['umaban'])}番 {bamei} "
-                       f"（スコア: {row['normalized_score']:.2f} / {get_score_rank(row['normalized_score'])}）")
+                       f"（スコア: {row['ensemble_score']:.2f} / {get_score_rank(row['ensemble_score'])}）")
     
     # Markdownファイル保存
     report_path = output_dir / f"predictions_{target_date}.md"
