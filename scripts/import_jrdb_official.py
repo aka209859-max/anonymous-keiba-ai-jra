@@ -118,29 +118,29 @@ def parse_jrdb_file(file_path: Path, file_type: str) -> List[Dict]:
                 
                 record = {}
                 
+                # ファイル名から race_shikonen を抽出 (例: KYI260222.txt → 260222)
+                filename = file_path.stem  # KYI260222
+                date_part = filename.replace(file_type, '')  # 260222
+                if len(date_part) == 6:
+                    record['race_shikonen'] = date_part
+                
                 for start_pos, length, col_name in format_def['format']:
                     end_pos = start_pos + length
                     value = line[start_pos:end_pos].strip() if end_pos <= len(line) else ''
                     
-                    # 16進数の日を処理
+                    # カラム名をPostgreSQLテーブルに合わせる
                     if col_name == 'nichi':
+                        # 16進数の日を kaisai_nichime に変換
                         nichi_hex = hex_to_int(value)
-                        record['kaisai_nichime'] = str(nichi_hex).zfill(1)
-                    elif col_name == 'nen':
-                        # 年を4桁に変換 (26 → 2026)
-                        record['nen'] = '20' + value if value else None
+                        record['kaisai_nichime'] = str(nichi_hex)
                     elif col_name == 'kai':
+                        # 回 → kaisai_kai
                         record['kaisai_kai'] = value
+                    elif col_name == 'nen':
+                        # 年は race_shikonen に含まれるのでスキップ
+                        pass
                     else:
                         record[col_name] = value if value else None
-                
-                # race_shikonen を生成 (YYMMDD形式)
-                if 'nen' in record and 'kai' in record and 'kaisai_nichime' in record:
-                    # ファイル名から日付を抽出 (例: KYI260222.txt → 260222)
-                    filename = file_path.stem  # KYI260222
-                    date_part = filename.replace(file_type, '')  # 260222
-                    if len(date_part) == 6:
-                        record['race_shikonen'] = date_part
                 
                 records.append(record)
                 
