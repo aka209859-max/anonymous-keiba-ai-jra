@@ -850,8 +850,21 @@ def save_predictions(result_df, target_date: str):
 # 追加出力フォーマット（note / ブッカーズ / Twitter）
 # ============================================================================
 
+def filter_valid_umaban(df):
+    """馬番0を除外"""
+    if 'umaban' in df.columns:
+        try:
+            df['umaban_int'] = pd.to_numeric(df['umaban'], errors='coerce')
+            df = df[df['umaban_int'] >= 1].copy()
+            df = df.drop(columns=['umaban_int'])
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"  馬番フィルタリングエラー: {e}")
+    return df
+
 def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA"):
     """note形式の予想レポートを生成"""
+    result_df = filter_valid_umaban(result_df)
+    
     lines = []
     lines.append(f"# 🏇 {keibajo_name}競馬 AI予想")
     lines.append(f"")
@@ -865,10 +878,14 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
     
     for race_id, group in result_df.groupby('race_id'):
         group = group.sort_values('predicted_rank').reset_index(drop=True)
-        race_no = int(group.iloc[0]['race_bango'])
+        race_info = group.iloc[0]
+        
+        # 競馬場名とレース番号を取得
+        keibajo_display = race_info.get('keibajo_name', keibajo_name)
+        race_no = int(race_info['race_bango'])
         
         lines.append(f"")
-        lines.append(f"## 🏇 第{race_no}R 予想")
+        lines.append(f"## 🏇 {keibajo_display} 第{race_no}R 予想")
         lines.append(f"")
         lines.append(f"### 📊 予想順位")
         lines.append(f"")
@@ -901,10 +918,15 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
 
 def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JRA"):
     """ブッカーズ形式の予想レポートを生成"""
+    result_df = filter_valid_umaban(result_df)
+    
     lines = []
-    lines.append(f"🏇 【地方競馬AI】{keibajo_name}競馬 全{result_df.groupby('race_id').ngroups}R予想")
+    race_count = result_df.groupby('race_id').ngroups
+    lines.append(f"🏇 【競馬AI】{keibajo_name}競馬 全{race_count}R予想")
     lines.append(f"")
-    lines.append(f"📅 {target_date[:4]}年{target_date[4:6]}月{target_date[6:8]}日({datetime.strptime(target_date, '%Y%m%d').strftime('%a')})")
+    
+    date_obj = datetime.strptime(target_date, '%Y%m%d')
+    lines.append(f"📅 {date_obj.strftime('%Y年%m月%d日')}({date_obj.strftime('%a')})")
     lines.append(f"")
     lines.append(f"本日はAI予想システムによる分析結果をお届けします。")
     lines.append(f"過去の膨大なレースデータから、今日の馬場状態と出走馬の相性を完全数値化しました。")
@@ -913,12 +935,16 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
     
     for race_id, group in result_df.groupby('race_id'):
         group = group.sort_values('predicted_rank').reset_index(drop=True)
-        race_no = int(group.iloc[0]['race_bango'])
+        race_info = group.iloc[0]
+        
+        # 競馬場名とレース番号を取得
+        keibajo_display = race_info.get('keibajo_name', keibajo_name)
+        race_no = int(race_info['race_bango'])
         top_horses = group.head(5)
         
         lines.append(f"")
         lines.append(f"")
-        lines.append(f"🏁 第{race_no}R 予想結果")
+        lines.append(f"🏁 {keibajo_display} 第{race_no}R 予想結果")
         lines.append(f"")
         lines.append(f"🎯 AI推奨馬")
         lines.append(f"")
@@ -978,20 +1004,27 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
 
 def generate_twitter_format(result_df, target_date: str, keibajo_name: str = "JRA"):
     """Twitter形式の予想を生成"""
+    result_df = filter_valid_umaban(result_df)
+    
     lines = []
     
-    month = target_date[4:6]
-    day = target_date[6:8]
-    weekday_short = datetime.strptime(target_date, '%Y%m%d').strftime('%a')
+    date_obj = datetime.strptime(target_date, '%Y%m%d')
+    month = date_obj.strftime('%m')
+    day = date_obj.strftime('%d')
+    weekday_short = date_obj.strftime('%a')
     weekday_map = {'Mon': '月', 'Tue': '火', 'Wed': '水', 'Thu': '木', 'Fri': '金', 'Sat': '土', 'Sun': '日'}
     weekday_ja = weekday_map.get(weekday_short, weekday_short)
     
     for race_id, group in result_df.groupby('race_id'):
         group = group.sort_values('predicted_rank').reset_index(drop=True)
-        race_no = int(group.iloc[0]['race_bango'])
+        race_info = group.iloc[0]
+        
+        # 競馬場名とレース番号を取得
+        keibajo_display = race_info.get('keibajo_name', keibajo_name)
+        race_no = int(race_info['race_bango'])
         top_horses = group.head(6)
         
-        lines.append(f"{month}/{day}（{weekday_ja}）{keibajo_name}{race_no}R")
+        lines.append(f"{month}/{day}（{weekday_ja}）{keibajo_display}{race_no}R")
         
         honmei = top_horses.iloc[0]
         aite = top_horses.iloc[1] if len(top_horses) >= 2 else None
@@ -1013,32 +1046,48 @@ def generate_twitter_format(result_df, target_date: str, keibajo_name: str = "JR
     
     return '\n'.join(lines)
 
-def save_additional_formats(result_df, target_date: str, keibajo_name: str = "JRA"):
-    """note/ブッカーズ/Twitter形式で保存"""
+def save_additional_formats(result_df, target_date: str):
+    """競馬場別にnote/ブッカーズ/Twitter形式で保存"""
     logger = logging.getLogger(__name__)
     output_dir = Path('results')
     output_dir.mkdir(exist_ok=True)
     
-    # note形式
-    note_content = generate_note_format(result_df, target_date, keibajo_name)
-    note_path = output_dir / f"{keibajo_name}_{target_date}_note.txt"
-    with open(note_path, 'w', encoding='utf-8') as f:
-        f.write(note_content)
-    logger.info(f"  📝 note形式: {note_path} ({note_path.stat().st_size / 1024:.2f} KB)")
+    # 競馬場名マッピング
+    keibajo_names = {
+        '01': '札幌', '02': '函館', '03': '福島', '04': '新潟', '05': '東京',
+        '06': '中山', '07': '中京', '08': '京都', '09': '阪神', '10': '小倉'
+    }
     
-    # ブッカーズ形式
-    bookers_content = generate_bookers_format(result_df, target_date, keibajo_name)
-    bookers_path = output_dir / f"{keibajo_name}_{target_date}_bookers.txt"
-    with open(bookers_path, 'w', encoding='utf-8') as f:
-        f.write(bookers_content)
-    logger.info(f"  📚 ブッカーズ形式: {bookers_path} ({bookers_path.stat().st_size / 1024:.2f} KB)")
+    # keibajo_name カラムが無い場合は追加
+    if 'keibajo_name' not in result_df.columns:
+        result_df['keibajo_name'] = result_df['keibajo_code'].map(keibajo_names)
     
-    # Twitter形式
-    twitter_content = generate_twitter_format(result_df, target_date, keibajo_name)
-    twitter_path = output_dir / f"{keibajo_name}_{target_date}_tweet.txt"
-    with open(twitter_path, 'w', encoding='utf-8') as f:
-        f.write(twitter_content)
-    logger.info(f"  🐦 Twitter形式: {twitter_path} ({twitter_path.stat().st_size / 1024:.2f} KB)")
+    # 競馬場別にグループ化
+    for keibajo_code, keibajo_group in result_df.groupby('keibajo_code'):
+        keibajo_name = keibajo_names.get(keibajo_code, f"競馬場{keibajo_code}")
+        
+        logger.info(f"\n📁 {keibajo_name}競馬の予想を生成中...")
+        
+        # note形式
+        note_content = generate_note_format(keibajo_group, target_date, keibajo_name)
+        note_path = output_dir / f"{keibajo_name}_{target_date}_note.txt"
+        with open(note_path, 'w', encoding='utf-8') as f:
+            f.write(note_content)
+        logger.info(f"  📝 note形式: {note_path} ({note_path.stat().st_size / 1024:.2f} KB)")
+        
+        # ブッカーズ形式
+        bookers_content = generate_bookers_format(keibajo_group, target_date, keibajo_name)
+        bookers_path = output_dir / f"{keibajo_name}_{target_date}_bookers.txt"
+        with open(bookers_path, 'w', encoding='utf-8') as f:
+            f.write(bookers_content)
+        logger.info(f"  📚 ブッカーズ形式: {bookers_path} ({bookers_path.stat().st_size / 1024:.2f} KB)")
+        
+        # Twitter形式
+        twitter_content = generate_twitter_format(keibajo_group, target_date, keibajo_name)
+        twitter_path = output_dir / f"{keibajo_name}_{target_date}_tweet.txt"
+        with open(twitter_path, 'w', encoding='utf-8') as f:
+            f.write(twitter_content)
+        logger.info(f"  🐦 Twitter形式: {twitter_path} ({twitter_path.stat().st_size / 1024:.2f} KB)")
 
 # ============================================================================
 # メイン処理
@@ -1083,7 +1132,7 @@ def main():
         save_predictions(result_df, target_date)
         
         # 6. 追加フォーマット保存（note/ブッカーズ/Twitter）
-        save_additional_formats(result_df, target_date, keibajo_name="JRA")
+        save_additional_formats(result_df, target_date)
         
         logger.info("\n" + "=" * 80)
         logger.info("✅ Phase 6 完了！")
