@@ -164,6 +164,12 @@ def fetch_today_data(conn, target_date: str):
     
     logger.info(f"✅ 基礎情報: {len(df)}頭（{df['race_bango'].nunique()}レース）")
     
+    # デバッグ: bamei の型と最初の5行を確認
+    logger.info(f"🔍 DEBUG: bamei カラム型 = {df['bamei'].dtype}")
+    logger.info(f"🔍 DEBUG: bamei サンプル（最初の5行）:")
+    for idx, row in df.head(5).iterrows():
+        logger.info(f"  {idx}: umaban={row['umaban']}, bamei='{row['bamei']}' (type={type(row['bamei'])}, len={len(str(row['bamei']))})")
+    
     # keibajo_season_code生成
     def generate_keibajo_season_code(row):
         keibajo = row['keibajo_code']
@@ -493,10 +499,18 @@ def fetch_today_data(conn, target_date: str):
     categorical_cols = df.select_dtypes(include=['object']).columns
     df[categorical_cols] = df[categorical_cols].fillna('unknown')
     
+    # 表示用カラムのリスト（数値化しないカラム）
+    display_cols = ['race_id', 'kakutei_chakujun', 'ketto_toroku_bango', 
+                    'bamei', 'kishumei_ryakusho', 'chokyoshimei_ryakusho', 'banushimei']
+    
     # カテゴリを数値エンコーディング（Phase 5と同じ）
+    # ただし表示用カラムは除外
     for col in categorical_cols:
-        if col not in ['race_id', 'kakutei_chakujun', 'ketto_toroku_bango']:
+        if col not in display_cols:
             df[col] = df[col].astype('category').cat.codes
+    
+    logger.info(f"🔍 DEBUG: 数値化除外カラム = {[c for c in display_cols if c in df.columns]}")
+    logger.info(f"🔍 DEBUG: bamei カラム型（エンコード後） = {df['bamei'].dtype if 'bamei' in df.columns else 'なし'}")
     
     logger.info(f"✅ 特徴量生成完了: {len(df)}行 × {len(df.columns)}列")
     
