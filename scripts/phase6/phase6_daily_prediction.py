@@ -758,11 +758,13 @@ def save_predictions(result_df, target_date: str):
             rank = int(row['predicted_rank'])
             umaban = int(row['umaban'])
             bamei_raw = row.get('bamei', f"{umaban}番馬")
-            # bameiが整数型の場合は文字列に変換
-            if isinstance(bamei_raw, (int, float)):
-                bamei = str(int(bamei_raw)) if not pd.isna(bamei_raw) else f"{umaban}番馬"
+            # bameiが整数型・float型・その他の場合を安全に処理
+            if pd.isna(bamei_raw):
+                bamei = f"{umaban}番馬"
+            elif isinstance(bamei_raw, (int, float)):
+                bamei = str(int(bamei_raw))
             else:
-                bamei = str(bamei_raw).strip() if pd.notna(bamei_raw) else f"{umaban}番馬"
+                bamei = str(bamei_raw).strip() if hasattr(bamei_raw, 'strip') else str(bamei_raw)
             score = row['normalized_score']
             score_rank = get_score_rank(score)
             
@@ -787,11 +789,13 @@ def save_predictions(result_df, target_date: str):
         logger.info(f"\n{keibajo_name} {race_no}R:")
         for idx, row in group.head(3).iterrows():
             bamei_raw = row.get('bamei', f"{int(row['umaban'])}番馬")
-            # bameiが整数型の場合は文字列に変換
-            if isinstance(bamei_raw, (int, float)):
-                bamei = str(int(bamei_raw)) if not pd.isna(bamei_raw) else f"{int(row['umaban'])}番馬"
+            # bameiが整数型・float型・その他の場合を安全に処理
+            if pd.isna(bamei_raw):
+                bamei = f"{int(row['umaban'])}番馬"
+            elif isinstance(bamei_raw, (int, float)):
+                bamei = str(int(bamei_raw))
             else:
-                bamei = str(bamei_raw).strip() if pd.notna(bamei_raw) else f"{int(row['umaban'])}番馬"
+                bamei = str(bamei_raw).strip() if hasattr(bamei_raw, 'strip') else str(bamei_raw)
             logger.info(f"  {int(row['predicted_rank'])}. {int(row['umaban'])}番 {bamei} "
                        f"（スコア: {row['normalized_score']:.2f} / {get_score_rank(row['normalized_score'])}）")
     
