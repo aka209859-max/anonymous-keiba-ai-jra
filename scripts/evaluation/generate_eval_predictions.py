@@ -171,19 +171,13 @@ def prepare_features(df):
             df['bamei'] = 'Unknown_' + df.index.astype(str)
             print(f"   ⚠️  bamei を生成しました（ダミー値）")
     
-    # 特徴量カラムの自動取得（モデル学習時と同じカラムを使用）
-    # ※識別情報カラムを除外
+    # 特徴量カラムの自動取得（Phase 3 学習時と完全一致）
+    # ※Phase 3 の exclude_cols と同じリストを使用
     exclude_cols = [
-        'race_id', 'keibajo_name', 'kaisai_nengappi', 'race_bango',
-        'umaban', 'bamei', 'kishu_mei', 'tyokyo_mei',
-        'kakutei_chakujun',  # ターゲット変数
-        'target_top3',       # ターゲット変数
-        'is_top3',           # ターゲット変数
-        'kaisai_nen',        # 年情報（学習時に除外）
-        'kaisai_bi',         # 日付情報
-        'date',              # 日付情報
-        'kaisai_tsukihi',    # 日付情報（race_id生成に使用、特徴量ではない）
-        'keibajo_code',      # 競馬場コード（race_id生成に使用、特徴量ではない）
+        'kaisai_nen', 'kaisai_tsukihi', 'keibajo_code', 'race_bango', 
+        'umaban', 'kakutei_chakujun', 'is_top3', 'target_top3',
+        # ⚠️ 以下は Phase 2 で生成したカラム（Phase 3 には存在しない）
+        'race_id', 'keibajo_name', 'bamei'
     ]
     
     feature_cols = [col for col in df.columns if col not in exclude_cols]
