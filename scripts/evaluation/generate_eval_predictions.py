@@ -379,7 +379,7 @@ def main():
     df = load_2025_features()
     
     # Step 2: 特徴量準備
-    X, feature_cols = prepare_features(df)
+    X, feature_cols, df = prepare_features(df)
     
     # Step 3: モデル読み込み
     binary_model, regression_model = load_eval_models()
