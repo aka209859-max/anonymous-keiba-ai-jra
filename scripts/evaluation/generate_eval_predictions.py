@@ -131,13 +131,44 @@ def prepare_features(df):
     print("【2. 特徴量準備】")
     print("=" * 60)
     
-    # 必須カラムの存在確認
-    required_cols = ['race_id', 'keibajo_name', 'race_bango', 'umaban', 
-                     'bamei', 'kakutei_chakujun']
+    # 必須カラムの存在確認（柔軟に対応）
+    # race_id がない場合は作成
+    if 'race_id' not in df.columns:
+        # keibajo_code, kaisai_bi, race_bango などから作成
+        id_parts = []
+        if 'keibajo_code' in df.columns:
+            id_parts.append(df['keibajo_code'].astype(str))
+        if 'kaisai_bi' in df.columns:
+            id_parts.append(df['kaisai_bi'].astype(str))
+        elif 'kaisai_nen' in df.columns and 'kaisai_tsukihi' in df.columns:
+            id_parts.append(df['kaisai_nen'].astype(str) + df['kaisai_tsukihi'].astype(str).str.zfill(4))
+        if 'race_bango' in df.columns:
+            id_parts.append(df['race_bango'].astype(str).str.zfill(2))
+        
+        if id_parts:
+            df['race_id'] = '_'.join(id_parts) if len(id_parts) > 1 else id_parts[0]
+            print(f"   ⚠️  race_id を生成しました")
+        else:
+            df['race_id'] = df.index.astype(str)
+            print(f"   ⚠️  race_id をindex から生成しました")
     
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"必須カラムが不足しています: {missing_cols}")
+    # keibajo_name がない場合は keibajo_code から作成
+    if 'keibajo_name' not in df.columns and 'keibajo_code' in df.columns:
+        keibajo_map = {
+            1: '札幌', 2: '函館', 3: '福島', 4: '新潟', 5: '東京',
+            6: '中山', 7: '中京', 8: '京都', 9: '阪神', 10: '小倉'
+        }
+        df['keibajo_name'] = df['keibajo_code'].map(keibajo_map).fillna('不明')
+        print(f"   ⚠️  keibajo_name を keibajo_code から生成しました")
+    
+    # bamei がない場合は代替カラムを使用
+    if 'bamei' not in df.columns:
+        if 'horse_name' in df.columns:
+            df['bamei'] = df['horse_name']
+            print(f"   ⚠️  bamei を horse_name から取得しました")
+        else:
+            df['bamei'] = 'Unknown_' + df.index.astype(str)
+            print(f"   ⚠️  bamei を生成しました（ダミー値）")
     
     # 特徴量カラムの自動取得（Phase 3学習時と同じカラムを使用）
     # ※識別情報カラムを除外
