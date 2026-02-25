@@ -132,25 +132,26 @@ def prepare_features(df):
     print("=" * 60)
     
     # 必須カラムの存在確認（柔軟に対応）
-    # race_id がない場合は作成
+    # race_id がない場合は作成（Phase 5と同じロジック）
     if 'race_id' not in df.columns:
-        # keibajo_code, kaisai_bi, race_bango などから作成
-        id_parts = []
-        if 'keibajo_code' in df.columns:
-            id_parts.append(df['keibajo_code'].astype(str))
-        if 'kaisai_bi' in df.columns:
-            id_parts.append(df['kaisai_bi'].astype(str))
-        elif 'kaisai_nen' in df.columns and 'kaisai_tsukihi' in df.columns:
-            id_parts.append(df['kaisai_nen'].astype(str) + df['kaisai_tsukihi'].astype(str).str.zfill(4))
-        if 'race_bango' in df.columns:
-            id_parts.append(df['race_bango'].astype(str).str.zfill(2))
-        
-        if id_parts:
-            df['race_id'] = '_'.join(id_parts) if len(id_parts) > 1 else id_parts[0]
-            print(f"   ⚠️  race_id を生成しました")
+        if all(col in df.columns for col in ['kaisai_nen', 'kaisai_tsukihi', 'keibajo_code', 'race_bango']):
+            df['race_id'] = (
+                df['kaisai_nen'].astype(str) +
+                df['kaisai_tsukihi'].astype(str).str.zfill(4) +
+                df['keibajo_code'].astype(str).str.zfill(2) +
+                df['race_bango'].astype(str).str.zfill(2)
+            )
+            print(f"   ⚠️  race_id を kaisai_nen+kaisai_tsukihi+keibajo_code+race_bango から生成しました")
+        elif 'kaisai_bi' in df.columns and 'keibajo_code' in df.columns and 'race_bango' in df.columns:
+            df['race_id'] = (
+                df['kaisai_bi'].astype(str) + '_' +
+                df['keibajo_code'].astype(str).str.zfill(2) + '_' +
+                df['race_bango'].astype(str).str.zfill(2)
+            )
+            print(f"   ⚠️  race_id を kaisai_bi+keibajo_code+race_bango から生成しました")
         else:
             df['race_id'] = df.index.astype(str)
-            print(f"   ⚠️  race_id をindex から生成しました")
+            print(f"   ⚠️  race_id をindex から生成しました（最低限）")
     
     # keibajo_name がない場合は keibajo_code から作成
     if 'keibajo_name' not in df.columns and 'keibajo_code' in df.columns:
