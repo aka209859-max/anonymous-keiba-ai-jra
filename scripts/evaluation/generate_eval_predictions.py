@@ -269,7 +269,8 @@ def generate_predictions(df, X, binary_model, regression_model):
     # 回帰予測（タイム）
     if regression_model is not None:
         print("\n🔮 回帰予測中...")
-        time_pred = regression_model.predict(X_for_model)
+        # カテゴリカル特徴量エラー回避：ndarray に変換
+        time_pred = regression_model.predict(X_for_model.values if hasattr(X_for_model, 'values') else X_for_model)
         df['time_pred_eval'] = time_pred
         print(f"✅ 回帰予測完了")
     
