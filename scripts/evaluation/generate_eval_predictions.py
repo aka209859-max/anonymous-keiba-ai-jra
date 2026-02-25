@@ -182,6 +182,8 @@ def prepare_features(df):
         'kaisai_nen',        # 年情報（学習時に除外）
         'kaisai_bi',         # 日付情報
         'date',              # 日付情報
+        'kaisai_tsukihi',    # 日付情報（race_id生成に使用、特徴量ではない）
+        'keibajo_code',      # 競馬場コード（race_id生成に使用、特徴量ではない）
     ]
     
     feature_cols = [col for col in df.columns if col not in exclude_cols]
@@ -246,9 +248,23 @@ def generate_predictions(df, X, binary_model, regression_model):
     print("【4. 予測実行】")
     print("=" * 60)
     
+    # ⚠️ モデル学習時の特徴量名を取得（132列）
+    model_features = binary_model.feature_name()
+    print(f"📋 モデル学習時の特徴量数: {len(model_features)}列")
+    
+    # 欠損している特徴量を 0 で補完
+    for col in model_features:
+        if col not in X.columns:
+            X[col] = 0
+            print(f"   ⚠️  欠損特徴量を追加: {col}")
+    
+    # モデルの特徴量順に並べ替え（132列のみ）
+    X_for_model = X[model_features]
+    print(f"✅ 特徴量準備完了: {X_for_model.shape[1]}列（モデルと一致）")
+    
     # 二値分類予測（連対確率）
-    print("🔮 二値分類予測中...")
-    binary_proba = binary_model.predict(X)
+    print("\n🔮 二値分類予測中...")
+    binary_proba = binary_model.predict(X_for_model)
     df['binary_proba_eval'] = binary_proba
     
     print(f"✅ 二値分類予測完了")
@@ -259,7 +275,7 @@ def generate_predictions(df, X, binary_model, regression_model):
     # 回帰予測（タイム）
     if regression_model is not None:
         print("\n🔮 回帰予測中...")
-        time_pred = regression_model.predict(X)
+        time_pred = regression_model.predict(X_for_model)
         df['time_pred_eval'] = time_pred
         print(f"✅ 回帰予測完了")
     
