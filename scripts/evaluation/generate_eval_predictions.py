@@ -171,14 +171,17 @@ def prepare_features(df):
             df['bamei'] = 'Unknown_' + df.index.astype(str)
             print(f"   ⚠️  bamei を生成しました（ダミー値）")
     
-    # 特徴量カラムの自動取得（Phase 3学習時と同じカラムを使用）
+    # 特徴量カラムの自動取得（モデル学習時と同じカラムを使用）
     # ※識別情報カラムを除外
     exclude_cols = [
         'race_id', 'keibajo_name', 'kaisai_nengappi', 'race_bango',
         'umaban', 'bamei', 'kishu_mei', 'tyokyo_mei',
         'kakutei_chakujun',  # ターゲット変数
-        'is_top3',            # ターゲット変数
-        'kaisai_nen',         # 年情報
+        'target_top3',       # ターゲット変数
+        'is_top3',           # ターゲット変数
+        'kaisai_nen',        # 年情報（学習時に除外）
+        'kaisai_bi',         # 日付情報
+        'date',              # 日付情報
     ]
     
     feature_cols = [col for col in df.columns if col not in exclude_cols]
@@ -198,7 +201,7 @@ def prepare_features(df):
     print(f"   - 数値型カラム: {X.select_dtypes(include=[np.number]).shape[1]}列")
     print(f"   - 欠損値: {X.isnull().sum().sum()}個（0埋め済み）")
     
-    return X, feature_cols
+    return X, feature_cols, df  # df も返す（識別カラム用）
 
 # ========================================
 # 5. モデル読み込み
@@ -382,7 +385,7 @@ def main():
     binary_model, regression_model = load_eval_models()
     
     # Step 4: 予測実行
-    df = generate_predictions(df, X, binary_model, regression_model)
+    df = generate_predictions(df, X, feature_cols, binary_model, regression_model)
     
     # Step 5: 実績データ紐付け
     df = attach_actual_results(df)
