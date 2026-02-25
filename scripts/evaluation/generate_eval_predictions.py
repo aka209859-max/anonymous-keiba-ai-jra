@@ -385,7 +385,7 @@ def main():
     binary_model, regression_model = load_eval_models()
     
     # Step 4: 予測実行
-    df = generate_predictions(df, X, feature_cols, binary_model, regression_model)
+    df = generate_predictions(df, X, binary_model, regression_model)
     
     # Step 5: 実績データ紐付け
     df = attach_actual_results(df)
