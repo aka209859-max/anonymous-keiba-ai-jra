@@ -100,9 +100,24 @@ def load_2025_features():
     
     # データ概要表示
     print(f"\n📊 データ概要:")
-    print(f"   - レース日数: {df['kaisai_nengappi'].nunique()}日")
-    print(f"   - 競馬場数: {df['keibajo_code'].nunique()}場")
-    print(f"   - レース数: {df.groupby(['keibajo_code', 'kaisai_nengappi', 'race_bango']).ngroups:,}")
+    
+    # カラム名の確認（kaisai_nengappi または他の日付カラムが存在するか）
+    date_col = None
+    for col in ['kaisai_nengappi', 'kaisai_bi', 'date']:
+        if col in df.columns:
+            date_col = col
+            break
+    
+    if date_col:
+        print(f"   - レース日数: {df[date_col].nunique()}日")
+    
+    if 'keibajo_code' in df.columns:
+        print(f"   - 競馬場数: {df['keibajo_code'].nunique()}場")
+        
+        # レース数の計算
+        if date_col and 'race_bango' in df.columns:
+            print(f"   - レース数: {df.groupby(['keibajo_code', date_col, 'race_bango']).ngroups:,}")
+    
     print(f"   - 出走頭数: {len(df):,}頭")
     
     return df
@@ -279,25 +294,29 @@ def save_predictions(df):
     print("【7. 結果保存】")
     print("=" * 60)
     
-    # 保存するカラム
-    output_cols = [
-        'race_id',
+    # 保存するカラム（柔軟に対応）
+    output_cols = ['race_id']
+    
+    # 必須カラム（存在するもののみ追加）
+    optional_cols = [
         'keibajo_name',
-        'kaisai_nengappi',
+        'kaisai_nengappi', 'kaisai_bi', 'date',  # 日付カラム（どれか）
         'race_bango',
         'umaban',
         'bamei',
         'binary_proba_eval',
+        'time_pred_eval',
         'kakutei_chakujun',
         'actual_top3',
     ]
     
-    # time_pred_eval が存在する場合は追加
-    if 'time_pred_eval' in df.columns:
-        output_cols.insert(7, 'time_pred_eval')
+    for col in optional_cols:
+        if col in df.columns:
+            output_cols.append(col)
     
-    # 出力
-    output_df = df[output_cols].copy()
+    # 出力（存在するカラムのみ）
+    available_cols = [col for col in output_cols if col in df.columns]
+    output_df = df[available_cols].copy()
     output_df.to_csv(OUTPUT_CSV, index=False, encoding='utf-8-sig')
     
     print(f"✅ 予測結果保存完了")
