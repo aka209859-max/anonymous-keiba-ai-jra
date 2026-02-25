@@ -1,350 +1,354 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-JRA競馬AI予想システム - 評価用モデルで2025年予測
-=============================================================
+評価用モデルでの2025年予測生成スクリプト
 
-目的:
-    評価用モデル（2016-2024学習）で2025年データを予測
-    キャリブレーション用の予測結果と実績データを紐付け
+【目的】
+- 評価用モデル（2016-2024学習）で2025年データを予測
+- 実績データ（actual_top3）を紐付け
+- キャリブレーション学習用データセットを作成
 
-機能:
-    1. 2025年特徴量データを読み込み
-    2. 評価用二値分類モデルで予測
-    3. 評価用ランキングモデルで予測（存在する場合）
-    4. 評価用回帰モデルで予測（存在する場合）
-    5. 実績データ（actual_top3）を紐付け
-    6. キャリブレーション用データセットとして保存
+【入力】
+- data/evaluation/features_2025_for_calibration.csv（2025年特徴量）
+- models/jra_binary_model_eval.txt（評価用二値分類モデル）
+- models/jra_regression_model_eval.txt（評価用回帰モデル）
 
-入力:
-    - data/evaluation/features_2025_for_calibration.csv
-    - models/jra_binary_model_eval.txt（必須）
-    - models/jra_ranking_model_eval.txt（オプション）
-    - models/jra_regression_model_eval.txt（必須）
-
-出力:
-    - data/evaluation/predictions_2025_eval_model.csv
-
-作成日: 2026-02-25
-バージョン: 1.0
+【出力】
+- data/evaluation/predictions_2025_eval_model.csv（予測結果+実績）
 """
 
-import os
-import sys
 import pandas as pd
 import numpy as np
 import lightgbm as lgb
+import warnings
 from pathlib import Path
-from datetime import datetime
 
-# ================================================================================
-# 設定
-# ================================================================================
+warnings.filterwarnings('ignore')
 
-INPUT_CSV = 'data/evaluation/features_2025_for_calibration.csv'
-OUTPUT_CSV = 'data/evaluation/predictions_2025_eval_model.csv'
+# ========================================
+# 1. パス設定
+# ========================================
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = BASE_DIR / "data"
+MODEL_DIR = BASE_DIR / "models"
+EVAL_DIR = DATA_DIR / "evaluation"
 
-# モデルファイルパス
-BINARY_MODEL_PATH = 'models/jra_binary_model_eval.txt'
-RANKING_MODEL_PATH = 'models/jra_ranking_model_eval.txt'  # オプション
-REGRESSION_MODEL_PATH = 'models/jra_regression_model_eval.txt'
+# 入力ファイル
+FEATURES_2025 = EVAL_DIR / "features_2025_for_calibration.csv"
+BINARY_MODEL = MODEL_DIR / "jra_binary_model_eval.txt"
+REGRESSION_MODEL = MODEL_DIR / "jra_regression_model_eval.txt"
 
-# ================================================================================
-# モデル読み込み
-# ================================================================================
+# 出力ファイル
+OUTPUT_CSV = EVAL_DIR / "predictions_2025_eval_model.csv"
 
-def load_models():
-    """評価用モデルを読み込み"""
-    print("=" * 80)
-    print("🤖 評価用モデル読み込み")
-    print("=" * 80)
+# ========================================
+# 2. 特徴量カラム定義
+# ========================================
+# Phase 3で使用した特徴量（145カラム）
+# ※実際のカラム名は all_tracks_2016-2025_features.csv と一致させる
+FEATURE_COLS = [
+    # 馬基本情報
+    'sei', 'barei', 'kinryo',
     
-    models = {}
+    # 過去成績統計
+    'past_avg_chakujun', 'past_avg_time', 'past_win_rate',
+    'past_rentai_rate', 'past_fukusho_rate',
     
-    # 二値分類モデル（必須）
-    if not os.path.exists(BINARY_MODEL_PATH):
-        print(f"❌ エラー: 二値分類モデルが見つかりません: {BINARY_MODEL_PATH}")
-        print("\nPhase 3を実行して評価用モデルを作成してください:")
-        print("  python scripts/phase3/train_binary_model.py")
-        sys.exit(1)
+    # 同競馬場成績
+    'same_track_avg_rank', 'same_track_win_rate',
+    'same_distance_avg_rank', 'same_distance_win_rate',
     
-    print(f"読み込み中: {BINARY_MODEL_PATH}")
-    models['binary'] = lgb.Booster(model_file=BINARY_MODEL_PATH)
-    print(f"✅ 二値分類モデル読み込み完了")
-    print(f"   - 特徴量数: {models['binary'].num_feature()}")
+    # 騎手・調教師統計
+    'kishu_sho_rate', 'kishu_ren_rate', 'kishu_fuku_rate',
+    'kishu_kitai_rentai_ritsu',  # 重要特徴量
+    'tyokyo_sho_rate', 'tyokyo_ren_rate', 'tyokyo_fuku_rate',
     
-    # 回帰モデル（必須）
-    if not os.path.exists(REGRESSION_MODEL_PATH):
-        print(f"❌ エラー: 回帰モデルが見つかりません: {REGRESSION_MODEL_PATH}")
-        print("\nPhase 4を実行して評価用モデルを作成してください:")
-        print("  python scripts/phase4/train_regression_model.py")
-        sys.exit(1)
+    # レース条件
+    'kyori', 'track_code', 'baba_jotai_code',
+    'tenki_code', 'tenko_code',
     
-    print(f"読み込み中: {REGRESSION_MODEL_PATH}")
-    models['regression'] = lgb.Booster(model_file=REGRESSION_MODEL_PATH)
-    print(f"✅ 回帰モデル読み込み完了")
-    print(f"   - 特徴量数: {models['regression'].num_feature()}")
+    # 人気・オッズ系
+    'ninki', 'ninki_shisu',  # 重要特徴量
+    'tan_odds', 'fukusho_min_odds', 'fukusho_max_odds',
     
-    # ランキングモデル（オプション）
-    if os.path.exists(RANKING_MODEL_PATH):
-        print(f"読み込み中: {RANKING_MODEL_PATH}")
-        models['ranking'] = lgb.Booster(model_file=RANKING_MODEL_PATH)
-        print(f"✅ ランキングモデル読み込み完了")
-        print(f"   - 特徴量数: {models['ranking'].num_feature()}")
-    else:
-        print(f"⚠️  ランキングモデルが見つかりません（スキップ）: {RANKING_MODEL_PATH}")
-        models['ranking'] = None
+    # 枠・馬番
+    'wakuban', 'umaban',
     
-    return models
+    # その他145カラム分...
+    # ※実際には all_tracks_2016-2025_features.csv から自動取得
+]
 
-# ================================================================================
-# データ読み込みと前処理
-# ================================================================================
-
-def load_and_preprocess_data(input_csv, models):
-    """
-    2025年データを読み込み、予測用に前処理
+# ========================================
+# 3. データ読み込み
+# ========================================
+def load_2025_features():
+    """2025年特徴量データの読み込み"""
+    print("=" * 60)
+    print("【1. データ読み込み】")
+    print("=" * 60)
     
-    Parameters:
-    -----------
-    input_csv : str
-        入力CSVファイルパス
-    models : dict
-        モデル辞書
-    """
-    print("\n" + "=" * 80)
-    print("📂 2025年特徴量データ読み込み")
-    print("=" * 80)
+    if not FEATURES_2025.exists():
+        raise FileNotFoundError(
+            f"2025年特徴量ファイルが見つかりません: {FEATURES_2025}\n"
+            f"先に 'extract_2025_data.py' を実行してください。"
+        )
     
-    if not os.path.exists(input_csv):
-        print(f"❌ エラー: ファイルが見つかりません: {input_csv}")
-        print("\n先にステップ1を実行してください:")
-        print("  python scripts/data_preparation/extract_2025_data.py")
-        sys.exit(1)
+    df = pd.read_csv(FEATURES_2025)
+    print(f"✅ 読み込み完了: {len(df):,}行 × {len(df.columns)}列")
+    print(f"   ファイル: {FEATURES_2025.name}")
+    print(f"   データ期間: 2025年")
     
-    print(f"読み込み中: {input_csv}")
-    df = pd.read_csv(input_csv, encoding='utf-8', low_memory=False)
-    
-    print(f"✅ データ読み込み完了")
-    print(f"   - 行数: {len(df):,}行")
-    print(f"   - 列数: {len(df.columns)}列")
-    
-    # 実績データ（actual_top3）を作成
-    print("\n[実績データ作成]")
-    if 'kakutei_chakujun' in df.columns:
-        # 確定着順を数値に変換
-        df['kakutei_chakujun_num'] = pd.to_numeric(df['kakutei_chakujun'], errors='coerce')
-        
-        # 3着以内フラグ
-        df['actual_top3'] = (df['kakutei_chakujun_num'] <= 3).astype(int)
-        
-        top3_count = df['actual_top3'].sum()
-        top3_rate = top3_count / len(df) * 100
-        
-        print(f"  3着以内の馬: {top3_count}頭 ({top3_rate:.1f}%)")
-        print(f"  4着以下の馬: {len(df) - top3_count}頭 ({100 - top3_rate:.1f}%)")
-    else:
-        print("⚠️  'kakutei_chakujun' カラムが見つかりません")
-        print("  actual_top3 は作成できません")
-        df['actual_top3'] = np.nan
+    # データ概要表示
+    print(f"\n📊 データ概要:")
+    print(f"   - レース日数: {df['kaisai_nengappi'].nunique()}日")
+    print(f"   - 競馬場数: {df['keibajo_code'].nunique()}場")
+    print(f"   - レース数: {df.groupby(['keibajo_code', 'kaisai_nengappi', 'race_bango']).ngroups:,}")
+    print(f"   - 出走頭数: {len(df):,}頭")
     
     return df
 
-# ================================================================================
-# 予測実行
-# ================================================================================
-
-def generate_predictions(df, models):
-    """
-    評価用モデルで2025年データを予測
+# ========================================
+# 4. 特徴量準備
+# ========================================
+def prepare_features(df):
+    """予測用特徴量の準備"""
+    print("\n" + "=" * 60)
+    print("【2. 特徴量準備】")
+    print("=" * 60)
     
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        2025年特徴量データ
-    models : dict
-        モデル辞書
-    """
-    print("\n" + "=" * 80)
-    print("🔮 予測実行中...")
-    print("=" * 80)
+    # 必須カラムの存在確認
+    required_cols = ['race_id', 'keibajo_name', 'race_bango', 'umaban', 
+                     'bamei', 'kakutei_chakujun']
     
-    # 二値分類予測
-    print("\n[1] 二値分類予測（3着以内確率）")
-    binary_features = models['binary'].feature_name()
-    
-    # 特徴量カラムの存在確認
-    missing_cols = [col for col in binary_features if col not in df.columns]
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        print(f"⚠️  警告: 以下の特徴量が見つかりません（0で埋めます）:")
-        print(f"  欠損数: {len(missing_cols)}個")
-        if len(missing_cols) <= 10:
-            for col in missing_cols:
-                print(f"    - {col}")
-        
-        # 欠損カラムを0で埋める
-        for col in missing_cols:
-            df[col] = 0
+        raise ValueError(f"必須カラムが不足しています: {missing_cols}")
     
-    X_binary = df[binary_features].fillna(0)
-    print(f"  特徴量行列: {X_binary.shape}")
-    
-    df['binary_proba_eval'] = models['binary'].predict(X_binary)
-    print(f"  ✅ 予測完了")
-    print(f"  予測確率の範囲: {df['binary_proba_eval'].min():.4f} - {df['binary_proba_eval'].max():.4f}")
-    print(f"  予測確率の平均: {df['binary_proba_eval'].mean():.4f}")
-    
-    # 回帰予測（タイム予測）
-    print("\n[2] 回帰予測（走破タイム）")
-    regression_features = models['regression'].feature_name()
-    
-    missing_cols = [col for col in regression_features if col not in df.columns]
-    if missing_cols:
-        print(f"⚠️  警告: {len(missing_cols)}個の特徴量が欠損（0で埋めます）")
-        for col in missing_cols:
-            df[col] = 0
-    
-    X_regression = df[regression_features].fillna(0)
-    print(f"  特徴量行列: {X_regression.shape}")
-    
-    df['time_pred_eval'] = models['regression'].predict(X_regression)
-    print(f"  ✅ 予測完了")
-    print(f"  予測タイムの範囲: {df['time_pred_eval'].min():.2f}秒 - {df['time_pred_eval'].max():.2f}秒")
-    print(f"  予測タイムの平均: {df['time_pred_eval'].mean():.2f}秒")
-    
-    # ランキング予測（オプション）
-    if models['ranking'] is not None:
-        print("\n[3] ランキング予測（順位予測）")
-        ranking_features = models['ranking'].feature_name()
-        
-        missing_cols = [col for col in ranking_features if col not in df.columns]
-        if missing_cols:
-            print(f"⚠️  警告: {len(missing_cols)}個の特徴量が欠損（0で埋めます）")
-            for col in missing_cols:
-                df[col] = 0
-        
-        X_ranking = df[ranking_features].fillna(0)
-        print(f"  特徴量行列: {X_ranking.shape}")
-        
-        df['ranking_pred_eval'] = models['ranking'].predict(X_ranking)
-        print(f"  ✅ 予測完了")
-        print(f"  予測順位の範囲: {df['ranking_pred_eval'].min():.2f} - {df['ranking_pred_eval'].max():.2f}")
-        print(f"  予測順位の平均: {df['ranking_pred_eval'].mean():.2f}")
-    else:
-        print("\n[3] ランキング予測（スキップ）")
-        df['ranking_pred_eval'] = np.nan
-    
-    return df
-
-# ================================================================================
-# 結果保存
-# ================================================================================
-
-def save_predictions(df, output_csv):
-    """
-    予測結果を保存
-    
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        予測結果を含むデータフレーム
-    output_csv : str
-        出力CSVファイルパス
-    """
-    print("\n" + "=" * 80)
-    print("💾 予測結果保存中...")
-    print("=" * 80)
-    
-    # 保存するカラムを選択
-    output_columns = [
-        'race_id', 'kaisai_nen', 'keibajo_code', 'kaisai_kai', 'kaisai_nichime',
-        'race_bango', 'umaban', 'bamei', 'kishu_mei', 'chokyo_shi_mei',
-        'binary_proba_eval', 'ranking_pred_eval', 'time_pred_eval',
-        'actual_top3', 'kakutei_chakujun'
+    # 特徴量カラムの自動取得（Phase 3学習時と同じカラムを使用）
+    # ※識別情報カラムを除外
+    exclude_cols = [
+        'race_id', 'keibajo_name', 'kaisai_nengappi', 'race_bango',
+        'umaban', 'bamei', 'kishu_mei', 'tyokyo_mei',
+        'kakutei_chakujun',  # ターゲット変数
+        'is_top3',            # ターゲット変数
+        'kaisai_nen',         # 年情報
     ]
     
-    # 存在するカラムのみ選択
-    available_columns = [col for col in output_columns if col in df.columns]
+    feature_cols = [col for col in df.columns if col not in exclude_cols]
     
-    # race_id がない場合は生成
-    if 'race_id' not in df.columns:
-        print("  ⚠️  race_id が見つかりません（生成します）")
-        if all(col in df.columns for col in ['kaisai_nen', 'keibajo_code', 'kaisai_kai', 
-                                               'kaisai_nichime', 'race_bango']):
-            df['race_id'] = (
-                df['kaisai_nen'].astype(str) + 
-                df['keibajo_code'].astype(str).str.zfill(2) +
-                df['kaisai_kai'].astype(str).str.zfill(2) +
-                df['kaisai_nichime'].astype(str).str.zfill(2) +
-                df['race_bango'].astype(str).str.zfill(2)
-            )
-            if 'race_id' not in available_columns:
-                available_columns.insert(0, 'race_id')
+    # 数値型に変換（文字列型の数値を変換）
+    for col in feature_cols:
+        if df[col].dtype == 'object':
+            try:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+            except:
+                pass
     
-    df_output = df[available_columns].copy()
+    # 欠損値処理
+    X = df[feature_cols].fillna(0)
     
-    # 保存
-    df_output.to_csv(output_csv, index=False, encoding='utf-8')
+    print(f"✅ 特徴量準備完了: {len(feature_cols)}カラム")
+    print(f"   - 数値型カラム: {X.select_dtypes(include=[np.number]).shape[1]}列")
+    print(f"   - 欠損値: {X.isnull().sum().sum()}個（0埋め済み）")
     
-    output_size = os.path.getsize(output_csv) / (1024**2)
-    print(f"✅ 保存完了: {output_csv}")
-    print(f"   - 行数: {len(df_output):,}行")
-    print(f"   - 列数: {len(df_output.columns)}列")
-    print(f"   - ファイルサイズ: {output_size:.1f} MB")
-    
-    # 保存されたカラム一覧
-    print("\n[保存されたカラム]")
-    for i, col in enumerate(df_output.columns, 1):
-        print(f"  {i:2d}. {col}")
-    
-    # 統計サマリー
-    print("\n[予測統計サマリー]")
-    if 'binary_proba_eval' in df_output.columns:
-        print(f"  binary_proba_eval:")
-        print(f"    平均: {df_output['binary_proba_eval'].mean():.4f}")
-        print(f"    中央値: {df_output['binary_proba_eval'].median():.4f}")
-        print(f"    標準偏差: {df_output['binary_proba_eval'].std():.4f}")
-    
-    if 'actual_top3' in df_output.columns:
-        print(f"  actual_top3:")
-        print(f"    3着以内: {df_output['actual_top3'].sum():,}頭")
-        print(f"    4着以下: {(df_output['actual_top3'] == 0).sum():,}頭")
-    
-    return df_output
+    return X, feature_cols
 
-# ================================================================================
-# メイン処理
-# ================================================================================
+# ========================================
+# 5. モデル読み込み
+# ========================================
+def load_eval_models():
+    """評価用モデルの読み込み"""
+    print("\n" + "=" * 60)
+    print("【3. モデル読み込み】")
+    print("=" * 60)
+    
+    # 二値分類モデル（連対確率予測）
+    if not BINARY_MODEL.exists():
+        raise FileNotFoundError(
+            f"評価用二値分類モデルが見つかりません: {BINARY_MODEL}\n"
+            f"Phase 3を実行してモデルを作成してください。"
+        )
+    
+    binary_model = lgb.Booster(model_file=str(BINARY_MODEL))
+    print(f"✅ 二値分類モデル読み込み完了")
+    print(f"   - ファイル: {BINARY_MODEL.name}")
+    print(f"   - 学習期間: 2016-2024年")
+    print(f"   - 木の数: {binary_model.num_trees()}本")
+    
+    # 回帰モデル（タイム予測）
+    regression_model = None
+    if REGRESSION_MODEL.exists():
+        regression_model = lgb.Booster(model_file=str(REGRESSION_MODEL))
+        print(f"✅ 回帰モデル読み込み完了")
+        print(f"   - ファイル: {REGRESSION_MODEL.name}")
+        print(f"   - 木の数: {regression_model.num_trees()}本")
+    else:
+        print(f"⚠️  回帰モデルが見つかりません（スキップ）")
+    
+    return binary_model, regression_model
 
+# ========================================
+# 6. 予測実行
+# ========================================
+def generate_predictions(df, X, binary_model, regression_model):
+    """評価用モデルで予測実行"""
+    print("\n" + "=" * 60)
+    print("【4. 予測実行】")
+    print("=" * 60)
+    
+    # 二値分類予測（連対確率）
+    print("🔮 二値分類予測中...")
+    binary_proba = binary_model.predict(X)
+    df['binary_proba_eval'] = binary_proba
+    
+    print(f"✅ 二値分類予測完了")
+    print(f"   - 予測確率範囲: {binary_proba.min():.4f} - {binary_proba.max():.4f}")
+    print(f"   - 予測確率平均: {binary_proba.mean():.4f}")
+    print(f"   - 予測確率中央値: {np.median(binary_proba):.4f}")
+    
+    # 回帰予測（タイム）
+    if regression_model is not None:
+        print("\n🔮 回帰予測中...")
+        time_pred = regression_model.predict(X)
+        df['time_pred_eval'] = time_pred
+        print(f"✅ 回帰予測完了")
+    
+    return df
+
+# ========================================
+# 7. 実績データ紐付け
+# ========================================
+def attach_actual_results(df):
+    """実績データの紐付け"""
+    print("\n" + "=" * 60)
+    print("【5. 実績データ紐付け】")
+    print("=" * 60)
+    
+    # 実着順から3着以内フラグを作成
+    df['actual_top3'] = (df['kakutei_chakujun'] <= 3).astype(int)
+    
+    # 実着順の確認
+    valid_results = df[df['kakutei_chakujun'].notna()]
+    top3_count = valid_results['actual_top3'].sum()
+    top3_rate = top3_count / len(valid_results) * 100
+    
+    print(f"✅ 実績データ紐付け完了")
+    print(f"   - 有効着順データ: {len(valid_results):,}件")
+    print(f"   - 3着以内頭数: {top3_count:,}頭 ({top3_rate:.1f}%)")
+    print(f"   - 4着以下頭数: {len(valid_results) - top3_count:,}頭")
+    
+    return df
+
+# ========================================
+# 8. 予測精度の評価
+# ========================================
+def evaluate_predictions(df):
+    """予測精度の簡易評価"""
+    print("\n" + "=" * 60)
+    print("【6. 予測精度評価】")
+    print("=" * 60)
+    
+    # 有効データのみ抽出
+    valid_df = df[df['actual_top3'].notna()].copy()
+    
+    # 確率範囲別の的中率
+    thresholds = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4]
+    
+    print("📊 予測確率別の的中率:")
+    for threshold in thresholds:
+        pred_positive = valid_df[valid_df['binary_proba_eval'] >= threshold]
+        if len(pred_positive) > 0:
+            accuracy = pred_positive['actual_top3'].mean() * 100
+            print(f"   - 確率≥{threshold:.1f}: {len(pred_positive):,}頭中 "
+                  f"{pred_positive['actual_top3'].sum():,}頭的中 ({accuracy:.1f}%)")
+    
+    # 上位20%予測の的中率
+    top20_threshold = valid_df['binary_proba_eval'].quantile(0.80)
+    top20_df = valid_df[valid_df['binary_proba_eval'] >= top20_threshold]
+    top20_accuracy = top20_df['actual_top3'].mean() * 100
+    
+    print(f"\n💡 上位20%予測の的中率: {top20_accuracy:.1f}%")
+    print(f"   （閾値: {top20_threshold:.4f}以上）")
+
+# ========================================
+# 9. 結果保存
+# ========================================
+def save_predictions(df):
+    """予測結果の保存"""
+    print("\n" + "=" * 60)
+    print("【7. 結果保存】")
+    print("=" * 60)
+    
+    # 保存するカラム
+    output_cols = [
+        'race_id',
+        'keibajo_name',
+        'kaisai_nengappi',
+        'race_bango',
+        'umaban',
+        'bamei',
+        'binary_proba_eval',
+        'kakutei_chakujun',
+        'actual_top3',
+    ]
+    
+    # time_pred_eval が存在する場合は追加
+    if 'time_pred_eval' in df.columns:
+        output_cols.insert(7, 'time_pred_eval')
+    
+    # 出力
+    output_df = df[output_cols].copy()
+    output_df.to_csv(OUTPUT_CSV, index=False, encoding='utf-8-sig')
+    
+    print(f"✅ 予測結果保存完了")
+    print(f"   - ファイル: {OUTPUT_CSV}")
+    print(f"   - 行数: {len(output_df):,}行")
+    print(f"   - カラム数: {len(output_cols)}列")
+    
+    # ファイルサイズ表示
+    file_size = OUTPUT_CSV.stat().st_size / 1024  # KB
+    print(f"   - ファイルサイズ: {file_size:.1f} KB")
+
+# ========================================
+# 10. メイン処理
+# ========================================
 def main():
     """メイン処理"""
     print("\n" + "=" * 80)
-    print("🎯 JRA競馬AI予想システム - 評価用モデルで2025年予測")
+    print("【JRA競馬予測：評価用モデルでの2025年予測生成】")
     print("=" * 80)
-    print(f"開始時刻: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    print(f"📅 実行日時: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"🎯 目的: キャリブレーション学習用データセット作成")
+    print("=" * 80)
     
-    # モデル読み込み
-    models = load_models()
+    # Step 1: データ読み込み
+    df = load_2025_features()
     
-    # データ読み込みと前処理
-    df = load_and_preprocess_data(INPUT_CSV, models)
+    # Step 2: 特徴量準備
+    X, feature_cols = prepare_features(df)
     
-    # 予測実行
-    df = generate_predictions(df, models)
+    # Step 3: モデル読み込み
+    binary_model, regression_model = load_eval_models()
     
-    # 結果保存
-    df_output = save_predictions(df, OUTPUT_CSV)
+    # Step 4: 予測実行
+    df = generate_predictions(df, X, binary_model, regression_model)
+    
+    # Step 5: 実績データ紐付け
+    df = attach_actual_results(df)
+    
+    # Step 6: 予測精度評価
+    evaluate_predictions(df)
+    
+    # Step 7: 結果保存
+    save_predictions(df)
     
     print("\n" + "=" * 80)
-    print("✅ 評価用モデルでの2025年予測完了！")
+    print("✅ 全処理完了！")
     print("=" * 80)
-    print(f"終了時刻: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("\n次のステップ:")
-    print("  1. キャリブレーション用データセットが準備完了")
-    print("  2. Phase 3へ進む:")
-    print("     → scripts/calibration/train_meta_model.py")
-    print("  3. メタモデル学習と温度スケーリングの実装")
+    print("\n📋 次のステップ:")
+    print("   → Phase 3: メタモデル学習と温度パラメータ推定")
+    print("   → 使用データ: data/evaluation/predictions_2025_eval_model.csv")
     print("=" * 80 + "\n")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
