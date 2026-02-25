@@ -36,6 +36,7 @@ EVAL_DIR = DATA_DIR / "evaluation"
 # 入力ファイル
 FEATURES_2025 = EVAL_DIR / "features_2025_for_calibration.csv"
 BINARY_MODEL = MODEL_DIR / "jra_binary_model_eval.txt"
+RANKING_MODEL = MODEL_DIR / "jra_ranking_model_eval.txt"
 REGRESSION_MODEL = MODEL_DIR / "jra_regression_model_eval.txt"
 
 # 出力ファイル
@@ -228,6 +229,16 @@ def load_eval_models():
     print(f"   - 学習期間: 2016-2024年")
     print(f"   - 木の数: {binary_model.num_trees()}本")
     
+    # ランキングモデル（順位予測）
+    ranking_model = None
+    if RANKING_MODEL.exists():
+        ranking_model = lgb.Booster(model_file=str(RANKING_MODEL))
+        print(f"✅ ランキングモデル読み込み完了")
+        print(f"   - ファイル: {RANKING_MODEL.name}")
+        print(f"   - 木の数: {ranking_model.num_trees()}本")
+    else:
+        print(f"⚠️  ランキングモデルが見つかりません（スキップ）")
+    
     # 回帰モデル（タイム予測）
     regression_model = None
     if REGRESSION_MODEL.exists():
@@ -238,12 +249,12 @@ def load_eval_models():
     else:
         print(f"⚠️  回帰モデルが見つかりません（スキップ）")
     
-    return binary_model, regression_model
+    return binary_model, ranking_model, regression_model
 
 # ========================================
 # 6. 予測実行
 # ========================================
-def generate_predictions(df, X, binary_model, regression_model):
+def generate_predictions(df, X, binary_model, ranking_model, regression_model):
     """評価用モデルで予測実行"""
     print("\n" + "=" * 60)
     print("【4. 予測実行】")
@@ -272,6 +283,28 @@ def generate_predictions(df, X, binary_model, regression_model):
     print(f"   - 予測確率範囲: {binary_proba.min():.4f} - {binary_proba.max():.4f}")
     print(f"   - 予測確率平均: {binary_proba.mean():.4f}")
     print(f"   - 予測確率中央値: {np.median(binary_proba):.4f}")
+    
+    # ランキング予測（順位スコア）
+    if ranking_model is not None:
+        print("\n🔮 ランキング予測中...")
+        
+        # ⚠️ ランキングモデルの特徴量名を取得（135列）
+        ranking_features = ranking_model.feature_name()
+        print(f"📋 ランキングモデル学習時の特徴量数: {len(ranking_features)}列")
+        
+        # 欠損している特徴量を 0 で補完
+        for col in ranking_features:
+            if col not in X.columns:
+                X[col] = 0
+                print(f"   ⚠️  欠損特徴量を追加: {col}")
+        
+        # ランキング用の特徴量（135列）
+        X_ranking = X[ranking_features]
+        print(f"✅ ランキング用特徴量準備完了: {X_ranking.shape[1]}列（モデルと一致）")
+        
+        ranking_pred = ranking_model.predict(X_ranking)
+        df['ranking_pred_eval'] = ranking_pred
+        print(f"✅ ランキング予測完了")
     
     # 回帰予測（タイム）
     if regression_model is not None:
@@ -373,6 +406,7 @@ def save_predictions(df):
         'umaban',
         'bamei',
         'binary_proba_eval',
+        'ranking_pred_eval',  # ← ランキング予測追加
         'time_pred_eval',
         'kakutei_chakujun',
         'actual_top3',
@@ -415,10 +449,10 @@ def main():
     X, feature_cols, df = prepare_features(df)
     
     # Step 3: モデル読み込み
-    binary_model, regression_model = load_eval_models()
+    binary_model, ranking_model, regression_model = load_eval_models()
     
     # Step 4: 予測実行
-    df = generate_predictions(df, X, binary_model, regression_model)
+    df = generate_predictions(df, X, binary_model, ranking_model, regression_model)
     
     # Step 5: 実績データ紐付け
     df = attach_actual_results(df)
