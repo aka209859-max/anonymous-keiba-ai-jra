@@ -210,11 +210,14 @@ def ensemble_predict(models, test_df, feature_cols):
             group['time_norm'] = 0.5
         
         # アンサンブルスコア（重み付け平均）
-        # 重み: 二値分類 30%, ランキング 40%, タイム 30%
+        # 重み調整: Phase 4B分析に基づく
+        # - 回帰モデルは距離依存が過多（Top 3 特徴量で 82.8%）のため重みを低く
+        # - 二値分類とランキングは特徴量バランスが良好のため重みを高く
+        # 重み: 二値分類 40%, ランキング 40%, タイム 20%
         group['ensemble_score'] = (
-            0.30 * group['binary_proba_norm'] +
+            0.40 * group['binary_proba_norm'] +
             0.40 * group['ranking_norm'] +
-            0.30 * group['time_norm']
+            0.20 * group['time_norm']
         )
         
         # レース内順位
@@ -392,7 +395,8 @@ def save_predictions(result_df, metrics):
     report_lines.append("")
     report_lines.append("【アンサンブル手法】")
     report_lines.append("  - 重み付け平均スコア")
-    report_lines.append("  - 重み: 二値分類 30%, ランキング 40%, タイム 30%")
+    report_lines.append("  - 重み: 二値分類 40%, ランキング 40%, タイム 20%")
+    report_lines.append("  - Phase 4B 分析に基づく調整: 回帰モデルは距離依存過多のため低重み")
     report_lines.append("")
     report_lines.append("【評価結果】")
     report_lines.append(f"  - 評価レース数: {metrics['total_races']}レース")
