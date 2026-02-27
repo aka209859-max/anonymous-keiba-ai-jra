@@ -34,7 +34,7 @@ def prepare_ranking_data_eval():
     print("🎯 学習期間: 2016-2024年")
     print("🎯 評価目的: 2025年予測でキャリブレーション学習\n")
     
-    df = pd.read_csv('data/features/all_tracks_2016-2025_features.csv', encoding='utf-8')
+    df = pd.read_csv('data/features/all_tracks_2016-2025_features.csv', encoding='utf-8', low_memory=False)
     print(f"✅ データ読み込み: {len(df):,}行 × {len(df.columns)}列")
     
     # race_idを生成: YYYYMMDDJJRR (年月日 + 競馬場コード + レース番号)
@@ -51,13 +51,26 @@ def prepare_ranking_data_eval():
     # 目的変数: 着順（1位=1, 2位=2, ...）
     df['target'] = pd.to_numeric(df['kakutei_chakujun'], errors='coerce')
     
-    # 着順の欠損値処理
+    # 🚨 重要: 着順が0以下または欠損のデータを除外
+    print("\n🔧 着順データのクリーニング...")
+    original_count = len(df)
+    
+    # 欠損値を除外
     missing_count = df['target'].isnull().sum()
     if missing_count > 0:
-        print(f"⚠️  着順欠損: {missing_count}行 → 除外")
+        print(f"  ⚠️  着順欠損: {missing_count}行")
         df = df.dropna(subset=['target'])
     
-    print(f"✅ 目的変数作成: 着順範囲 {df['target'].min():.0f} ~ {df['target'].max():.0f}")
+    # 着順0以下を除外（競走中止・失格など）
+    invalid_rank_count = (df['target'] <= 0).sum()
+    if invalid_rank_count > 0:
+        print(f"  ⚠️  着順0以下: {invalid_rank_count}行（競走中止・失格など）")
+        df = df[df['target'] > 0].copy()
+    
+    excluded_count = original_count - len(df)
+    print(f"✅ 除外データ: {excluded_count}行 ({excluded_count/original_count*100:.2f}%)")
+    print(f"✅ 有効データ: {len(df):,}行")
+    print(f"✅ 目的変数範囲: {df['target'].min():.0f}位 ~ {df['target'].max():.0f}位")
     
     # 欠損値処理
     print("\n🔧 欠損値処理中...")

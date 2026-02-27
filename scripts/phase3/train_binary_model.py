@@ -122,8 +122,20 @@ def preprocess_data(df):
         logger.error("❌ 'kakutei_chakujun'カラムが存在しません")
         sys.exit(1)
     
-    df['is_top3'] = (df['kakutei_chakujun'].astype(float) <= 3).astype(int)
+    # 🚨 重要: 着順が1~3の範囲のみを「3着以内」とする（0や欠損値は除外）
+    df['kakutei_chakujun_float'] = pd.to_numeric(df['kakutei_chakujun'], errors='coerce')
+    
+    # 着順0以下または欠損のデータを除外
+    original_count = len(df)
+    invalid_mask = (df['kakutei_chakujun_float'] <= 0) | (df['kakutei_chakujun_float'].isnull())
+    invalid_count = invalid_mask.sum()
+    if invalid_count > 0:
+        logger.warning(f"   ⚠️  無効な着順データ: {invalid_count}行 ({invalid_count/original_count*100:.2f}%) → 除外")
+        df = df[~invalid_mask].copy()
+    
+    df['is_top3'] = (df['kakutei_chakujun_float'] <= 3).astype(int)
     top3_ratio = df['is_top3'].mean() * 100
+    logger.info(f"   - 有効データ: {len(df):,}行")
     logger.info(f"   - 3着以内の割合: {top3_ratio:.2f}%")
     logger.info(f"   - 4着以下の割合: {100 - top3_ratio:.2f}%")
     
