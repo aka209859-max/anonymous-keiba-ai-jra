@@ -210,3 +210,165 @@ target_top3, prev1_time
 **セッション記録者**: GenSpark AI Developer  
 **記録日時**: 2026-02-27 19:00 JST  
 **次回セッション開始時の必読ファイル**: 本ファイル
+
+---
+
+## 🎉 追加実装完了（2026-02-27 19:30）
+
+### オプションA実装：評価用ランキングモデル作成スクリプト
+
+**コミットID**: 7776179  
+**GitHubリンク**: https://github.com/aka209859-max/anonymous-keiba-ai-jra/commit/7776179
+
+#### 作成ファイル
+**`scripts/phase4/train_ranking_model_eval.py`**
+- 2016-2024年のみで学習（2025年は除外）
+- 出力: `models/jra_ranking_model_eval.txt`
+- 検証: 2024年データでNDCG@3評価
+- レポート: `results/ranking_model_eval_training_report.txt`
+
+#### 統合状況
+- ✅ `generate_eval_predictions.py` は既に対応済み（39行目）
+- ✅ モデル作成後、自動的にランキング予測が追加される
+
+#### 実装理由（ユーザー判断）
+> **「2016～2024の評価用モデルで2025の結果をシミュレーションをしないと信頼性がないですよね？？」**
+
+**完全に正しい判断**:
+- 本番用モデル（2016-2025学習）で2025年を予測すると、データリーク（過学習）が発生
+- キャリブレーションパラメータが不正確になり、本番運用時に性能低下
+- 評価用モデル（2016-2024学習）なら、真の未来予測性能を正確に測定可能
+
+---
+
+## 🚀 次のアクション（ローカル実行）
+
+### ステップ1: 最新コードを取得
+```powershell
+cd E:\anonymous-keiba-ai-JRA
+git pull origin genspark_ai_developer
+git log --oneline -3
+```
+**期待される表示**:
+```
+7776179 feat(phase4): Add ranking model evaluation training script (2016-2024)
+30c7f07 docs: Add Phase 2 completion report and session summary for 2026-02-27
+27e093e feat(evaluation): Add ranking model support (3-model system: ...)
+```
+
+### ステップ2: 評価用ランキングモデルを学習
+```powershell
+$env:PYTHONIOENCODING="utf-8"
+python scripts/phase4/train_ranking_model_eval.py
+```
+
+**所要時間**: 30-60分（マシンスペックに依存）
+
+**期待される出力**:
+```
+================================================================================
+📂 Phase 4-A: ランキング評価用モデル構築開始
+================================================================================
+🎯 学習期間: 2016-2024年
+🎯 評価目的: 2025年予測でキャリブレーション学習
+
+✅ データ読み込み: 483,370行 × 139列
+✅ race_id 生成完了: XXXX,XXXレース
+✅ 目的変数作成: 着順範囲 1 ~ 18
+✅ データ分割（評価用）:
+  訓練: XXX,XXX行（2016-2023）, XX,XXXレース
+  検証: XXX,XXX行（2024）, X,XXXレース
+  ⚠️  2025年データは学習に使用しません（キャリブレーション評価用）
+
+🚀 モデル訓練開始...
+[LightGBM] [Info] ...
+...
+✅ 訓練完了 (Best iteration: XXX)
+
+📊 検証データ（2024年）での性能評価
+✅ 検証データ（2024年）NDCG@3: 0.5XXX
+✅ 成功基準クリア（NDCG@3 > 0.50）
+
+💾 評価用モデル保存
+✅ 評価用モデル保存完了
+  - ファイル: models/jra_ranking_model_eval.txt
+  - サイズ: X.XX MB
+  - 学習期間: 2016-2024年
+  - 検証NDCG@3: 0.5XXX
+  - 用途: 2025年予測 → キャリブレーション学習
+
+✅ 全処理完了！
+
+次のステップ:
+  1. python scripts/evaluation/generate_eval_predictions.py
+  2. predictions_2025_eval_model.csv に ranking_pred_eval が追加される
+  3. Phase 3: メタモデル学習へ進む
+```
+
+### ステップ3: 評価用モデルで2025年を予測（3モデル統合）
+```powershell
+$env:PYTHONIOENCODING="utf-8"
+python scripts/evaluation/generate_eval_predictions.py
+```
+
+**期待される追加出力**:
+```
+============================================================
+【3. モデル読み込み】
+============================================================
+✅ 二値分類モデル読み込み完了
+   - ファイル: jra_binary_model_eval.txt
+   - 学習期間: 2016-2024年
+   - 木の数: 1120本
+✅ ランキングモデル読み込み完了  ← ★ 新規追加
+   - ファイル: jra_ranking_model_eval.txt  ← ★
+   - 木の数: XXX本  ← ★
+✅ 回帰モデル読み込み完了
+   - ファイル: jra_regression_model_eval.txt
+   - 木の数: 1000本
+
+...
+
+🔮 ランキング予測中...  ← ★ 新規追加
+📋 ランキングモデル学習時の特徴量数: 135列  ← ★
+✅ ランキング用特徴量準備完了: 135列（モデルと一致）  ← ★
+✅ ランキング予測完了  ← ★
+```
+
+### ステップ4: 出力ファイルの確認
+```powershell
+Get-Content data\evaluation\predictions_2025_eval_model.csv -Head 1
+```
+
+**期待される出力**:
+```
+race_id,keibajo_name,race_bango,umaban,bamei,binary_proba_eval,ranking_pred_eval,time_pred_eval,kakutei_chakujun,actual_top3
+                                                                ↑
+                                                    ★ この列が追加される
+```
+
+### ステップ5: ファイルサイズとカラム数確認
+```powershell
+Get-Item data\evaluation\predictions_2025_eval_model.csv | Select-Object Name, Length
+(Get-Content data\evaluation\predictions_2025_eval_model.csv -Head 1).Split(',').Count
+```
+
+**期待値**:
+- カラム数: **10列**（9列 → 10列に増加）
+- ファイルサイズ: 約4.5 MB（3.85 MB → 増加）
+
+---
+
+## ✅ Phase 2完了チェックリスト（更新版）
+
+- [x] 2025年データ抽出（48,058行）
+- [x] 二値分類予測（132特徴量）
+- [ ] **ランキング予測（135特徴量）← 実行待ち**
+- [x] 回帰予測（135特徴量）
+- [x] 実績データ紐付け（10,937頭が3着以内）
+
+**Phase 2完了後、Phase 3へ進みます。**
+
+---
+
+**更新日時**: 2026-02-27 19:35 JST
