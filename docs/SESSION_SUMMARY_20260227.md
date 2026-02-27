@@ -492,3 +492,146 @@ python scripts/phase4/train_ranking_model_eval.py
 ---
 
 **更新日時**: 2026-02-27 20:10 JST
+
+---
+
+## 📋 Phase 4スクリプト全監査完了（2026-02-27 21:00）
+
+### ユーザーリクエスト
+> **「全て最初からやり直しますか？？君は今までの会話をすぐ忘れるだろ？」**
+> **「現状を踏まえてGitHubと最新レポートからロードマップを確認し、毎回の会話でレポートを作成し、GitHubに保存するようにしてください。」**
+
+### 対応内容
+✅ **Phase 4スクリプト5ファイルの完全監査を実施**:
+1. `train_ranking_model.py`（本番用ランキングモデル）
+2. `train_ranking_model_eval.py`（評価用ランキングモデル）
+3. `train_regression_model.py`（基本回帰モデル）
+4. `train_regression_model_optimized.py`（最適化回帰モデル）
+5. `analyze_ranking_model.py`（ランキングモデル分析）
+
+### 監査レポート作成
+**作成ファイル**: `docs/PHASE4_SCRIPTS_AUDIT_20260227.md`  
+**GitHubリンク**: （コミット後追記）
+
+#### 監査結果サマリー
+
+##### ✅ 全スクリプトが必要
+- **不要なスクリプト**: なし
+- **理由**: 各スクリプトは異なる目的を持ち、ロードマップで使用される
+
+##### 🚨 重大な発見: rank 0除外コードがユーザーPC上に未反映
+
+**問題**:
+- **GitHubの最新版（コミット 7717c11）**には rank 0除外コードが含まれる
+- **ユーザーがアップロードしたファイル**には含まれていない
+- **影響**: NDCG@3 = 0.2502の低スコアの原因
+
+**影響を受けるスクリプト**:
+1. `train_ranking_model.py` ← rank 0が残る
+2. `train_ranking_model_eval.py` ← rank 0が残る
+3. `train_binary_model.py` ← GitHubには修正済み
+
+**期待されるコード（GitHub版）**:
+```python
+# 着順0以下または欠損のデータを除外
+original_count = len(df)
+invalid_mask = (df['target'] <= 0) | (df['target'].isnull())
+invalid_count = invalid_mask.sum()
+if invalid_count > 0:
+    print(f"⚠️  無効な着順データ: {invalid_count}行 ({invalid_count/original_count*100:.2f}%) → 除外")
+    df = df[~invalid_mask].copy()
+```
+
+**ユーザーPC上のコード（古いバージョン）**:
+```python
+# NaNのみ除外、rank 0は残る
+missing_count = df['target'].isnull().sum()
+if missing_count > 0:
+    print(f"⚠️  着順欠損: {missing_count}行 → 除外")
+    df = df.dropna(subset=['target'])  # ← rank 0は残る！
+```
+
+### 📊 スクリプト分類
+
+| スクリプト | 用途 | 優先度 | 修正必要 |
+|------------|------|--------|---------|
+| `train_ranking_model.py` | 本番用ランキング | 🔴 高 | ✅ 要修正 |
+| `train_ranking_model_eval.py` | 評価用ランキング | 🔴 高 | ✅ 要修正 |
+| `train_regression_model.py` | 基本回帰 | 🟡 中 | ❌ 不要 |
+| `train_regression_model_optimized.py` | 最適化回帰 | 🔴 高 | ❌ 不要 |
+| `analyze_ranking_model.py` | モデル分析 | 🟢 低 | ❌ 不要 |
+
+### 🔧 必要な作業
+
+#### ステップ1: GitHubから最新版を取得
+```powershell
+cd E:\anonymous-keiba-ai-JRA
+git pull origin genspark_ai_developer
+git log --oneline -5
+```
+
+**確認すべきコミット**:
+```
+e5197e6 - docs: Update session summary
+7717c11 - fix(models): Exclude invalid rank data (rank <= 0)  ← ★
+e24d5a6 - docs: Add detailed session summary
+7776179 - feat(phase4): Add ranking model evaluation training script
+30c7f07 - docs: Add Phase 2 completion report
+```
+
+#### ステップ2: 修正内容の確認
+```powershell
+# rank 0除外コードがあるか確認
+Get-Content scripts\phase4\train_ranking_model.py | Select-Object -Index 45..65
+Get-Content scripts\phase4\train_ranking_model_eval.py | Select-Object -Index 45..65
+```
+
+**期待される出力**（55-60行目付近）:
+```python
+# 着順0以下または欠損のデータを除外
+original_count = len(df)
+invalid_mask = (df['target'] <= 0) | (df['target'].isnull())
+invalid_count = invalid_mask.sum()
+if invalid_count > 0:
+    print(f"⚠️  無効な着順データ: {invalid_count}行 → 除外")
+    df = df[~invalid_mask].copy()
+```
+
+#### ステップ3: 評価用ランキングモデルを再訓練
+```powershell
+$env:PYTHONIOENCODING="utf-8"
+python scripts/phase4/train_ranking_model_eval.py
+```
+
+**期待される変化**:
+- ✅ `着順範囲 0 ~ 18` → `着順範囲 1位 ~ XX位`
+- ✅ `無効な着順データ: XXX行 (X.XX%) → 除外` のメッセージ
+- ✅ `NDCG@3: 0.2502` → `NDCG@3: >0.50`
+- ✅ `成功基準クリア（NDCG@3 > 0.50）`
+
+---
+
+## 🎯 次回セッション開始時の確認事項
+
+### 1. 最新レポートを読む
+```bash
+cd /home/user/webapp
+git pull origin genspark_ai_developer
+cat docs/SESSION_SUMMARY_20260227.md
+cat docs/PHASE4_SCRIPTS_AUDIT_20260227.md
+```
+
+### 2. ユーザーに確認
+- GitHubから最新版をプルしたか？
+- 評価用ランキングモデルを再訓練したか？
+- NDCG@3 > 0.50 を達成したか？
+- `ranking_pred_eval` カラムが追加されたか？
+
+### 3. Phase 3へ進む準備
+- メタ特徴量エンジニアリング
+- ロジスティック回帰メタモデル学習
+- 温度パラメータ最適化
+
+---
+
+**更新日時**: 2026-02-27 21:00 JST
