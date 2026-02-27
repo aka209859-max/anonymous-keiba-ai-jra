@@ -175,14 +175,18 @@ def train_ranking_model_eval(train_df, valid_df, feature_cols):
         y_true_race = y_valid[race_mask].values
         y_pred_race = y_pred_valid[race_mask]
         
-        # 着順を逆順スコア化（1位=最高点）
+        # 着順を関連性スコア化（1位=最高点）
         max_rank = y_true_race.max()
         y_true_relevance = max_rank - y_true_race + 1
+        
+        # 🔧 重要: LightGBM Rankerの予測値は「小さいほど上位」
+        # sklearn.ndcg_scoreは「大きいほど上位」を期待するため反転が必要
+        y_pred_score = -y_pred_race
         
         # NDCG@3計算（レース内で3頭以上いる場合のみ）
         if len(y_true_race) >= 3:
             try:
-                ndcg = ndcg_score([y_true_relevance], [y_pred_race], k=3)
+                ndcg = ndcg_score([y_true_relevance], [y_pred_score], k=3)
                 ndcg_scores.append(ndcg)
             except:
                 pass
