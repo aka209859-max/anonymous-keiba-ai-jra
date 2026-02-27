@@ -113,7 +113,7 @@ def preprocess_data(df):
     # 除外カラム (識別子、目的変数、リーク情報)
     exclude_cols = [
         'kaisai_nen', 'kaisai_tsukihi', 'keibajo_code', 'race_bango', 
-        'umaban', 'kakutei_chakujun', 'target_top3'  # target_top3を除外
+        'umaban', 'kakutei_chakujun', 'kakutei_chakujun_float', 'target_top3'  # kakutei_chakujun_float追加（データリーク防止）
     ]
     
     # 目的変数作成: 3着以内=1, 4着以下=0
@@ -261,7 +261,7 @@ def prepare_features(train_df, test_df):
     # 除外カラム（リーク情報も含む）
     exclude_cols = [
         'kaisai_nen', 'kaisai_tsukihi', 'keibajo_code', 'race_bango', 
-        'umaban', 'kakutei_chakujun', 'is_top3', 'target_top3'  # target_top3も除外
+        'umaban', 'kakutei_chakujun', 'kakutei_chakujun_float', 'is_top3', 'target_top3'  # kakutei_chakujun_float追加（データリーク防止）
     ]
     
     feature_cols = [col for col in train_df.columns if col not in exclude_cols]
