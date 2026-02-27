@@ -45,26 +45,38 @@
 
 ---
 
-### Phase 2: 評価用データセットの準備 🔄（次のステップ）
+### Phase 2: 評価用データセットの準備 ⚠️（部分完了 - ランキングモデル未実行）
 **目的**：較正モデル学習用の2025年データを準備
 
 **実施項目**：
-- [ ] 2025年データの抽出
+- [x] 2025年データの抽出
   - 入力：`data/features/all_tracks_2016-2025_features.csv`
   - 出力：`data/evaluation/features_2025_for_calibration.csv`
-- [ ] 評価用モデルで2025年を予測
-  - 使用モデル：`models/jra_binary_model_eval.txt` (2016-2024学習)
-  - 出力：`data/evaluation/predictions_2025_eval_model.csv`
-- [ ] 実績データ（actual_top3）の紐付け
-  - `kakutei_chakujun <= 3` → `actual_top3 = 1`
+  - ✅ 48,058行 × 139列
+- [x] 評価用モデルで2025年を予測
+  - ✅ 二値分類：`models/jra_binary_model_eval.txt` (2016-2024学習) → 完了
+  - ⚠️ ランキング：`models/jra_ranking_model_eval.txt` → **モデルファイル不在でスキップ**
+  - ✅ 回帰：`models/jra_regression_model_eval.txt` → 完了
+  - 出力：`data/evaluation/predictions_2025_eval_model.csv` (48,058行、9列)
+- [x] 実績データ（actual_top3）の紐付け
+  - ✅ `kakutei_chakujun <= 3` → `actual_top3 = 1` (10,937頭、22.8%)
 
 **成果物**：
-- `scripts/data_preparation/extract_2025_data.py`
-- `scripts/evaluation/generate_eval_predictions.py`
-- `data/evaluation/features_2025_for_calibration.csv`
-- `data/evaluation/predictions_2025_eval_model.csv`
+- ✅ `scripts/data_preparation/extract_2025_data.py`
+- ✅ `scripts/evaluation/generate_eval_predictions.py` (コミット 27e093e)
+- ✅ `data/evaluation/features_2025_for_calibration.csv`
+- ⚠️ `data/evaluation/predictions_2025_eval_model.csv` (**`ranking_pred_eval`欠落**)
 
-**所要時間**：1-2時間
+**達成度**：80% (ランキングモデル予測を除く全項目完了)
+
+**課題**：
+- ❌ `models/jra_ranking_model_eval.txt` (2016-2024学習) が不在
+- 💡 対応オプション：
+  - **A**: 評価用ランキングモデルを新規作成（30-60分）
+  - **B**: 本番用 `jra_ranking_model.txt` (2016-2025) を暫定利用【推奨】
+  - **C**: 2モデル（二値+回帰）のみでPhase 3実施
+
+**所要時間**：1-2時間（完了）+ オプション選択
 
 ---
 
