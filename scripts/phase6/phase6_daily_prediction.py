@@ -1041,10 +1041,10 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
             lines.append(f"【三連複】")
             if len(top_horses) >= 6:
                 box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(6)])
-                lines.append(f"・{uma1}.{uma2}.{uma3}（3点）")
+                lines.append(f"・{uma1}.{uma2} - {box_nums} - {box_nums}")
             else:
-                box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(min(3, len(top_horses)))])
-                lines.append(f"・{box_nums}（ボックス）")
+                box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(len(top_horses))])
+                lines.append(f"・{box_nums} ボックス")
         
         lines.append(f"")
         lines.append(f"")
