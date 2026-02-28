@@ -412,13 +412,14 @@ def fetch_today_data(conn, target_date: str):
         AND kyi.race_bango = joa.race_bango
         AND kyi.umaban = joa.umaban
     )
-    WHERE kyi.race_shikonen = %s
+    WHERE kyi.race_shikonen LIKE %s
       AND kyi.keibajo_code = ANY(%s)
     """
     
     keibajo_codes = df['keibajo_code'].unique().tolist()
     # race_shikonenは 'YYMMDD' 形式 (例: '260222')
-    race_shikonen_filter = kaisai_nen[2:4] + kaisai_tsukihi  # '26' + '0222' → '260222'
+    # ただし実際のDBには 'YYMMDDXXXX' (10桁) の場合もあるため LIKE 検索
+    race_shikonen_filter = kaisai_nen[2:4] + kaisai_tsukihi + '%'  # '26' + '0228' + '%' → '260228%'
     df_jrdb = pd.read_sql_query(query_jrdb, conn, params=(race_shikonen_filter, keibajo_codes))
     
     # ゼロパディング
