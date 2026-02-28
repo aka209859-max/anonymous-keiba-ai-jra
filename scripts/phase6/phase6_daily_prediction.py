@@ -936,6 +936,30 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
         lines.append(f"---")
         lines.append(f"")
     
+    # 注意事項とランク評価基準を追加
+    lines.append(f"")
+    lines.append(f"## ⚠️ 注意事項")
+    lines.append(f"")
+    lines.append(f"> 本予想はAIによる分析結果です。")
+    lines.append(f"> 投資判断は自己責任でお願いします。")
+    lines.append(f"> 過去の成績は将来の結果を保証するものではありません。")
+    lines.append(f"")
+    lines.append(f"---")
+    lines.append(f"")
+    lines.append(f"### 📌 ランク評価基準")
+    lines.append(f"")
+    lines.append(f"- **S**: スコア0.80以上（最有力候補）")
+    lines.append(f"- **A**: スコア0.70-0.79（有力候補）")
+    lines.append(f"- **B**: スコア0.60-0.69（注目候補）")
+    lines.append(f"- **C**: スコア0.50-0.59（穴候補）")
+    lines.append(f"- **D**: スコア0.50未満（警戒候補）")
+    lines.append(f"")
+    lines.append(f"---")
+    lines.append(f"")
+    date_obj = datetime.strptime(target_date, '%Y%m%d')
+    lines.append(f"*{keibajo_name}競馬 {date_obj.strftime('%Y年%m月%d日')} 開催分*  ")
+    lines.append(f"*中央競馬AI予想システム v3*")
+    
     return '\n'.join(lines)
 
 def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JRA"):
@@ -962,7 +986,7 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
         # 競馬場名とレース番号を取得
         keibajo_display = race_info.get('keibajo_name', keibajo_name)
         race_no = int(race_info['race_bango'])
-        top_horses = group.head(5)
+        top_horses = group.head(6)
         
         lines.append(f"")
         lines.append(f"")
@@ -1012,11 +1036,15 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
             uma1, uma2, uma3 = int(top_horses.iloc[0]['umaban']), int(top_horses.iloc[1]['umaban']), int(top_horses.iloc[2]['umaban'])
             lines.append(f"・{uma1} ↔ {uma2}, {uma3} (各2点)")
         
-        if len(top_horses) >= 6:
+        if len(top_horses) >= 3:
             lines.append(f"")
             lines.append(f"【三連複】")
-            box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(6)])
-            lines.append(f"・三連複：{uma1}.{uma2} - {box_nums} - {box_nums}")
+            if len(top_horses) >= 6:
+                box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(6)])
+                lines.append(f"・{uma1}.{uma2}.{uma3}（3点）")
+            else:
+                box_nums = '.'.join([str(int(top_horses.iloc[i]['umaban'])) for i in range(min(3, len(top_horses)))])
+                lines.append(f"・{box_nums}（ボックス）")
         
         lines.append(f"")
         lines.append(f"")
