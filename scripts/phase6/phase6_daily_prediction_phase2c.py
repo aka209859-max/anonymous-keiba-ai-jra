@@ -544,17 +544,17 @@ def fetch_today_data(conn, target_date: str):
 # ============================================================================
 
 def load_models():
-    """Phase 2C専用モデル読み込み (2016-2024年訓練)"""
+    """Phase 2C専用モデル読み込み (2016-2024年訓練の評価用モデル)"""
     logger = logging.getLogger(__name__)
     logger.info("\n" + "=" * 80)
-    logger.info("Phase 2C専用モデル読み込み (2016-2024)")
+    logger.info("Phase 2C専用モデル読み込み (2016-2024年訓練の評価用モデル)")
     logger.info("=" * 80)
     
     models = {}
     
-    binary_path = 'models/jra_binary_model_2016_2024.txt'
-    ranking_path = 'models/jra_ranking_model_2016_2024.txt'
-    regression_paths = ['models/jra_regression_model_2016_2024.txt']
+    binary_path = 'models/jra_binary_model_eval.txt'
+    ranking_path = 'models/jra_ranking_model_eval.txt'
+    regression_paths = ['models/jra_regression_model_eval.txt']
     
     if Path(binary_path).exists():
         models['binary'] = lgb.Booster(model_file=binary_path)
