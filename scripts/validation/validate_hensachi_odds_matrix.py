@@ -180,7 +180,7 @@ class HensachiOddsMatrixAnalyzer:
         """データベース設定を読み込み"""
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
-        return config
+        return config.get('jravan', {})
     
     def load_prediction_csvs(self, predictions_dir):
         """
