@@ -1009,7 +1009,7 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
         lines.append(f"")
         lines.append(f"## 🏇 {keibajo_display} 第{race_no}R 予想")
         lines.append(f"")
-        lines.append(f"### 📊 予想順位")
+        lines.append(f"### 📊 予想順位（スコア / 偏差値[ランク]）")
         lines.append(f"")
         
         for idx, row in group.iterrows():
@@ -1017,12 +1017,14 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
             umaban = int(row['umaban'])
             bamei = str(row.get('bamei', f"{umaban}番馬")).strip()
             score = row['ensemble_score']
-            score_rank = get_score_rank(score)
             hensachi = row.get('hensachi', np.nan)
             hensachi_rank = row.get('hensachi_rank', '')
             
-            # 偏差値情報を追加
-            hensachi_str = f" | 偏差値 {hensachi:.1f} ({hensachi_rank})" if not pd.isna(hensachi) else ""
+            # シンプルな表示形式: スコア / 偏差値[ランク]
+            if not pd.isna(hensachi):
+                score_info = f"{score:.2f} / {hensachi:.1f}[{hensachi_rank}]"
+            else:
+                score_info = f"{score:.2f}"
             
             # 1位の馬の場合、購入推奨判定を追加
             recommendation_str = ""
@@ -1032,9 +1034,9 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
                     recommendation_str = f"\n  💰 **購入推奨**: {reason}"
             
             if rank <= 3:
-                lines.append(f"**{rank}. {umaban}番 {bamei}** （スコア: {score:.2f} / {score_rank}{hensachi_str}）{recommendation_str}")
+                lines.append(f"**{rank}. {umaban}番 {bamei}** {score_info}{recommendation_str}")
             else:
-                lines.append(f"{rank}. {umaban}番 {bamei} （スコア: {score:.2f} / {score_rank}{hensachi_str}）")
+                lines.append(f"{rank}. {umaban}番 {bamei} {score_info}")
         
         lines.append(f"")
         lines.append(f"### 💰 購入推奨")
@@ -1120,17 +1122,18 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
             umaban = int(row['umaban'])
             bamei = str(row.get('bamei', f"{umaban}番馬")).strip()
             score = row['ensemble_score']
-            score_rank = get_score_rank(score)
             rank = int(row['predicted_rank'])
             hensachi = row.get('hensachi', np.nan)
             hensachi_rank = row.get('hensachi_rank', '')
             
-            # 偏差値情報を追加
-            hensachi_str = f" / 偏差値{hensachi:.1f}({hensachi_rank})" if not pd.isna(hensachi) else ""
+            # シンプルな表示形式: スコア / 偏差値[ランク]
+            if not pd.isna(hensachi):
+                score_info = f"{score:.2f} / {hensachi:.1f}[{hensachi_rank}]"
+            else:
+                score_info = f"{score:.2f}"
             
             if rank == 1:
-                lines.append(f"◎ {umaban} {bamei} (ランク{score_rank}{hensachi_str})")
-                lines.append(f"AIスコア: {score:.2f}")
+                lines.append(f"◎ {umaban} {bamei} ({score_info})")
                 # 購入推奨判定を追加
                 if 'tansho_odds' in row:
                     should_buy, reason = should_recommend_purchase(hensachi_rank, row.get('tansho_odds', np.nan))
@@ -1138,12 +1141,10 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
                         lines.append(f"💰 購入推奨: {reason}")
             elif rank == 2:
                 lines.append(f"")
-                lines.append(f"○ {umaban} {bamei} (ランク{score_rank}{hensachi_str})")
-                lines.append(f"AIスコア: {score:.2f}")
+                lines.append(f"○ {umaban} {bamei} ({score_info})")
             elif rank == 3:
                 lines.append(f"")
-                lines.append(f"▲ {umaban} {bamei} (ランク{score_rank}{hensachi_str})")
-                lines.append(f"AIスコア: {score:.2f}")
+                lines.append(f"▲ {umaban} {bamei} ({score_info})")
             elif rank == 4:
                 lines.append(f"")
                 lines.append(f"△ {umaban} {bamei}")
