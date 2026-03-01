@@ -1034,9 +1034,9 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
                     recommendation_str = f"\n  💰 **購入推奨**: {reason}"
             
             if rank <= 3:
-                lines.append(f"**{rank}. {umaban}番 {bamei}** {score_info}{recommendation_str}")
+                lines.append(f"**{rank}. {umaban}番 {bamei}** （{score_info}）{recommendation_str}")
             else:
-                lines.append(f"{rank}. {umaban}番 {bamei} {score_info}")
+                lines.append(f"{rank}. {umaban}番 {bamei} （{score_info}）")
         
         lines.append(f"")
         lines.append(f"### 💰 購入推奨")
@@ -1133,7 +1133,7 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
                 score_info = f"{score:.2f}"
             
             if rank == 1:
-                lines.append(f"◎ {umaban} {bamei} ({score_info})")
+                lines.append(f"◎ {umaban} {bamei} （{score_info}）")
                 # 購入推奨判定を追加
                 if 'tansho_odds' in row:
                     should_buy, reason = should_recommend_purchase(hensachi_rank, row.get('tansho_odds', np.nan))
@@ -1141,10 +1141,10 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
                         lines.append(f"💰 購入推奨: {reason}")
             elif rank == 2:
                 lines.append(f"")
-                lines.append(f"○ {umaban} {bamei} ({score_info})")
+                lines.append(f"○ {umaban} {bamei} （{score_info}）")
             elif rank == 3:
                 lines.append(f"")
-                lines.append(f"▲ {umaban} {bamei} ({score_info})")
+                lines.append(f"▲ {umaban} {bamei} （{score_info}）")
             elif rank == 4:
                 lines.append(f"")
                 lines.append(f"△ {umaban} {bamei}")
