@@ -34,20 +34,24 @@ def get_race_dates_by_month(year='2025', month=None):
     cursor = conn.cursor()
     
     if month:
-        # 特定月のみ
+        # 特定月のみ（レース数12以上の日のみ）
         month_str = f"{int(month):02d}"
         cursor.execute("""
-            SELECT DISTINCT kaisai_tsukihi
+            SELECT kaisai_tsukihi
             FROM jvd_se
             WHERE kaisai_nen = %s AND SUBSTRING(kaisai_tsukihi, 1, 2) = %s
+            GROUP BY kaisai_tsukihi
+            HAVING COUNT(DISTINCT keibajo_code || race_bango) >= 12
             ORDER BY kaisai_tsukihi;
         """, (year, month_str))
     else:
-        # 全月
+        # 全月（レース数12以上の日のみ）
         cursor.execute("""
-            SELECT DISTINCT kaisai_tsukihi
+            SELECT kaisai_tsukihi
             FROM jvd_se
             WHERE kaisai_nen = %s
+            GROUP BY kaisai_tsukihi
+            HAVING COUNT(DISTINCT keibajo_code || race_bango) >= 12
             ORDER BY kaisai_tsukihi;
         """, (year,))
     
@@ -75,9 +79,16 @@ def get_monthly_summary(year='2025'):
         SELECT 
             SUBSTRING(kaisai_tsukihi, 1, 2) as month,
             COUNT(DISTINCT kaisai_tsukihi) as days,
-            COUNT(*) as races
-        FROM jvd_se
-        WHERE kaisai_nen = %s
+            SUM(race_count) as races
+        FROM (
+            SELECT 
+                kaisai_tsukihi,
+                COUNT(DISTINCT keibajo_code || race_bango) as race_count
+            FROM jvd_se
+            WHERE kaisai_nen = %s
+            GROUP BY kaisai_tsukihi
+            HAVING COUNT(DISTINCT keibajo_code || race_bango) >= 12
+        ) as valid_days
         GROUP BY SUBSTRING(kaisai_tsukihi, 1, 2)
         ORDER BY month;
     """, (year,))
