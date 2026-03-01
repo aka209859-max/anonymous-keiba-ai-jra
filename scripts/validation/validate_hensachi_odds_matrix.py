@@ -449,10 +449,18 @@ class HensachiOddsMatrixAnalyzer:
         
         # 偏差値ランクを付与
         def assign_hensachi_rank(hensachi):
-            for rank, (lower, upper, _) in self.HENSACHI_RANKS.items():
-                if lower <= hensachi < upper:
-                    return rank
-            return 'E'  # デフォルト
+            if hensachi >= 70.0:
+                return 'S'
+            elif hensachi >= 65.0:
+                return 'A'
+            elif hensachi >= 60.0:
+                return 'B'
+            elif hensachi >= 55.0:
+                return 'C'
+            elif hensachi >= 50.0:
+                return 'D'
+            else:
+                return 'E'
         
         self.merged_data['hensachi_rank'] = self.merged_data['hensachi'].apply(assign_hensachi_rank)
         
