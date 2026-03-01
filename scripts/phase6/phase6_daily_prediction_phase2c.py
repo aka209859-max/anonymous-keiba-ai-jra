@@ -674,6 +674,17 @@ def ensemble_predict(models, df, display_data):
     
     logger.info(f"✅ アンサンブルスコア計算完了")
     
+    # 偏差値計算（レース内で標準化）
+    logger.info("\n🔧 偏差値計算中...")
+    result_df = result_df.groupby('race_id').apply(calculate_hensachi_for_race)
+    result_df = result_df.reset_index(drop=True)
+    
+    # 偏差値ランク付与
+    result_df['hensachi_rank'] = result_df['hensachi'].apply(assign_hensachi_rank)
+    
+    logger.info(f"✅ 偏差値計算完了")
+    logger.info(f"偏差値範囲: {result_df['hensachi'].min():.2f} - {result_df['hensachi'].max():.2f}")
+    
     # 表示用データを復元
     for col_name, col_data in display_data.items():
         if len(col_data) == len(result_df):
@@ -686,8 +697,51 @@ def ensemble_predict(models, df, display_data):
 # ユーティリティ関数
 # ============================================================================
 
+def calculate_hensachi_for_race(group):
+    """レース内で偏差値を計算
+    
+    Args:
+        group: レース内の全馬のDataFrame
+    
+    Returns:
+        DataFrame: 偏差値が追加されたDataFrame
+    """
+    mean = group['ensemble_score'].mean()
+    std = group['ensemble_score'].std()
+    
+    if std == 0 or pd.isna(std):
+        # 標準偏差が0の場合は全て偏差値50
+        group['hensachi'] = 50.0
+    else:
+        z_score = (group['ensemble_score'] - mean) / std
+        group['hensachi'] = 50 + 10 * z_score
+    
+    return group
+
+def assign_hensachi_rank(hensachi: float) -> str:
+    """偏差値からランクを付与（S/A/B/C/D/E）
+    
+    Args:
+        hensachi: 偏差値
+    
+    Returns:
+        str: ランク（S/A/B/C/D/E）
+    """
+    if hensachi >= 70.0:
+        return 'S'
+    elif hensachi >= 65.0:
+        return 'A'
+    elif hensachi >= 60.0:
+        return 'B'
+    elif hensachi >= 55.0:
+        return 'C'
+    elif hensachi >= 50.0:
+        return 'D'
+    else:
+        return 'E'
+
 def get_score_rank(score: float) -> str:
-    """スコアをランク評価（S/A/B/C/D）に変換"""
+    """スコアをランク評価（S/A/B/C/D）に変換（旧関数、互換性のため残す）"""
     if score >= 0.85:
         return 'S'
     elif score >= 0.70:
@@ -699,6 +753,35 @@ def get_score_rank(score: float) -> str:
     else:
         return 'D'
 
+def should_recommend_purchase(hensachi_rank: str, tansho_odds: float) -> tuple:
+    """
+    購入推奨判定（Phase 2C分析結果に基づく）
+    
+    判定基準（回収率80%以上）:
+    - Sランク: 問答無用で購入推奨
+    - Aランク: オッズ5倍未満なら購入推奨
+    - Bランク: オッズ3倍未満なら購入推奨
+    - C/D/Eランク: 推奨しない
+    
+    Args:
+        hensachi_rank: 偏差値ランク（S/A/B/C/D/E）
+        tansho_odds: 単勝オッズ
+    
+    Returns:
+        tuple: (bool, str) = (購入推奨フラグ, 推奨理由)
+    """
+    if pd.isna(tansho_odds):
+        return False, ""
+    
+    if hensachi_rank == 'S':
+        return True, "🌟 Sランク（偏差値70以上）: 全オッズ帯で購入推奨"
+    elif hensachi_rank == 'A' and tansho_odds < 5.0:
+        return True, f"⭐ Aランク（偏差値65-70）× オッズ{tansho_odds:.1f}倍: 回収率80%以上"
+    elif hensachi_rank == 'B' and tansho_odds < 3.0:
+        return True, f"✅ Bランク（偏差値60-65）× オッズ{tansho_odds:.1f}倍: 回収率80%以上"
+    else:
+        return False, ""
+
 def generate_betting_recommendations(top_horses):
     """購入推奨を生成"""
     recommendations = []
@@ -707,6 +790,15 @@ def generate_betting_recommendations(top_horses):
         honmei = top_horses.iloc[0]
         recommendations.append(f"**🎯 本命軸**")
         recommendations.append(f"- 単勝: **{int(honmei['umaban'])}番**")
+        
+        # 購入推奨判定を追加
+        if 'hensachi_rank' in honmei and 'tansho_odds' in honmei:
+            should_buy, reason = should_recommend_purchase(
+                honmei['hensachi_rank'],
+                honmei.get('tansho_odds', np.nan)
+            )
+            if should_buy:
+                recommendations.append(f"  💰 **購入推奨**: {reason}")
         
         if len(top_horses) >= 2:
             fukusho_list = ', '.join([f"{int(h['umaban'])}番" for h in [top_horses.iloc[0], top_horses.iloc[1]]])
@@ -805,14 +897,19 @@ def save_predictions(result_df, target_date: str):
                 bamei = str(int(bamei_raw))
             else:
                 bamei = str(bamei_raw).strip() if hasattr(bamei_raw, 'strip') else str(bamei_raw)
-            # 元のスコアを使用（正規化なし）
+            # 元のスコアと偏差値を使用
             score = row['ensemble_score']
             score_rank = get_score_rank(score)
+            hensachi = row.get('hensachi', np.nan)
+            hensachi_rank = row.get('hensachi_rank', '')
+            
+            # 偏差値情報を追加
+            hensachi_str = f"偏差値 {hensachi:.1f} ({hensachi_rank}ランク)" if not pd.isna(hensachi) else ""
             
             if rank <= 3:
-                report_lines.append(f"**{rank}. {umaban}番 {bamei}** （スコア: {score:.2f} / {score_rank}）")
+                report_lines.append(f"**{rank}. {umaban}番 {bamei}** （スコア: {score:.2f} / {score_rank}）{' | ' + hensachi_str if hensachi_str else ''}")
             else:
-                report_lines.append(f"{rank}. {umaban}番 {bamei} （スコア: {score:.2f} / {score_rank}）")
+                report_lines.append(f"{rank}. {umaban}番 {bamei} （スコア: {score:.2f} / {score_rank}）{' | ' + hensachi_str if hensachi_str else ''}")
         
         report_lines.append(f"")
         
@@ -855,6 +952,12 @@ def save_predictions(result_df, target_date: str):
     if 'banushimei' in result_df.columns:
         output_cols.append('banushimei')
     output_cols.extend(['binary_proba', 'ranking_score', 'time_pred', 'ensemble_score', 'predicted_rank'])
+    
+    # 偏差値情報を追加
+    if 'hensachi' in result_df.columns:
+        output_cols.append('hensachi')
+    if 'hensachi_rank' in result_df.columns:
+        output_cols.append('hensachi_rank')
     
     available_cols = [c for c in output_cols if c in result_df.columns]
     result_df[available_cols].to_csv(csv_path, index=False, encoding='utf-8-sig')
@@ -918,11 +1021,16 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
             bamei = str(row.get('bamei', f"{umaban}番馬")).strip()
             score = row['ensemble_score']
             score_rank = get_score_rank(score)
+            hensachi = row.get('hensachi', np.nan)
+            hensachi_rank = row.get('hensachi_rank', '')
+            
+            # 偏差値情報を追加
+            hensachi_str = f" | 偏差値 {hensachi:.1f} ({hensachi_rank})" if not pd.isna(hensachi) else ""
             
             if rank <= 3:
-                lines.append(f"**{rank}. {umaban}番 {bamei}** （スコア: {score:.2f} / {score_rank}）")
+                lines.append(f"**{rank}. {umaban}番 {bamei}** （スコア: {score:.2f} / {score_rank}{hensachi_str}）")
             else:
-                lines.append(f"{rank}. {umaban}番 {bamei} （スコア: {score:.2f} / {score_rank}）")
+                lines.append(f"{rank}. {umaban}番 {bamei} （スコア: {score:.2f} / {score_rank}{hensachi_str}）")
         
         lines.append(f"")
         lines.append(f"### 💰 購入推奨")
@@ -948,11 +1056,29 @@ def generate_note_format(result_df, target_date: str, keibajo_name: str = "JRA")
     lines.append(f"")
     lines.append(f"### 📌 ランク評価基準")
     lines.append(f"")
+    lines.append(f"**スコアランク（旧基準）:**")
     lines.append(f"- **S**: スコア0.80以上（最有力候補）")
     lines.append(f"- **A**: スコア0.70-0.79（有力候補）")
     lines.append(f"- **B**: スコア0.60-0.69（注目候補）")
     lines.append(f"- **C**: スコア0.50-0.59（穴候補）")
     lines.append(f"- **D**: スコア0.50未満（警戒候補）")
+    lines.append(f"")
+    lines.append(f"**偏差値ランク（Phase 2C分析）:**")
+    lines.append(f"- **S**: 偏差値70以上（レース内最上位）")
+    lines.append(f"- **A**: 偏差値65-70（レース内上位）")
+    lines.append(f"- **B**: 偏差値60-65（レース内中上位）")
+    lines.append(f"- **C**: 偏差値55-60（レース内平均以上）")
+    lines.append(f"- **D**: 偏差値50-55（レース内平均）")
+    lines.append(f"- **E**: 偏差値50未満（レース内下位）")
+    lines.append(f"")
+    lines.append(f"### 💰 購入推奨基準（Phase 2C分析結果）")
+    lines.append(f"")
+    lines.append(f"**単勝購入推奨（回収率80%以上）:**")
+    lines.append(f"- **Sランク（偏差値70以上）**: 全オッズ帯で購入推奨")
+    lines.append(f"- **Aランク（偏差値65-70）**: オッズ5倍未満で購入推奨")
+    lines.append(f"- **Bランク（偏差値60-65）**: オッズ3倍未満で購入推奨")
+    lines.append(f"")
+    lines.append(f"※ C/D/Eランクは購入推奨対象外（回収率80%未満）")
     lines.append(f"")
     lines.append(f"---")
     lines.append(f"")
@@ -1001,17 +1127,22 @@ def generate_bookers_format(result_df, target_date: str, keibajo_name: str = "JR
             score = row['ensemble_score']
             score_rank = get_score_rank(score)
             rank = int(row['predicted_rank'])
+            hensachi = row.get('hensachi', np.nan)
+            hensachi_rank = row.get('hensachi_rank', '')
+            
+            # 偏差値情報を追加
+            hensachi_str = f" / 偏差値{hensachi:.1f}({hensachi_rank})" if not pd.isna(hensachi) else ""
             
             if rank == 1:
-                lines.append(f"◎ {umaban} {bamei} (ランク{score_rank})")
+                lines.append(f"◎ {umaban} {bamei} (ランク{score_rank}{hensachi_str})")
                 lines.append(f"AIスコア: {score:.2f}")
             elif rank == 2:
                 lines.append(f"")
-                lines.append(f"○ {umaban} {bamei} (ランク{score_rank})")
+                lines.append(f"○ {umaban} {bamei} (ランク{score_rank}{hensachi_str})")
                 lines.append(f"AIスコア: {score:.2f}")
             elif rank == 3:
                 lines.append(f"")
-                lines.append(f"▲ {umaban} {bamei} (ランク{score_rank})")
+                lines.append(f"▲ {umaban} {bamei} (ランク{score_rank}{hensachi_str})")
                 lines.append(f"AIスコア: {score:.2f}")
             elif rank == 4:
                 lines.append(f"")
