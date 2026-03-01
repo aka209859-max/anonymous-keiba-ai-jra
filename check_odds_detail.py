@@ -69,7 +69,7 @@ def main():
     print("\n📝 サンプルデータ（2025年1着馬、最初の5件）:")
     cursor.execute("""
         SELECT 
-            kaisai_yen || kaisai_tsukihi as date,
+            kaisai_nen || kaisai_tsukihi as date,
             keibajo_code, race_bango, umaban, kakutei_chakujun,
             tansho_odds, tansho_ninkijun
         FROM jvd_se
