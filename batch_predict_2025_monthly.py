@@ -33,27 +33,37 @@ def get_race_dates_by_month(year='2025', month=None):
     
     cursor = conn.cursor()
     
+    # JRA競馬場コード（中央競馬のみ）
+    jra_codes = ('01','02','03','04','05','06','07','08','09','10')
+    
     if month:
-        # 特定月のみ（レース数12以上の日のみ）
+        # 特定月のみ（JRA競馬場、レース数12以上の日のみ）
         month_str = f"{int(month):02d}"
         cursor.execute("""
             SELECT kaisai_tsukihi
             FROM jvd_se
-            WHERE kaisai_nen = %s AND SUBSTRING(kaisai_tsukihi, 1, 2) = %s
+            WHERE kaisai_nen = %s 
+              AND SUBSTRING(kaisai_tsukihi, 1, 2) = %s
+              AND keibajo_code IN %s
+              AND kakutei_chakujun IS NOT NULL
+              AND kakutei_chakujun != ''
             GROUP BY kaisai_tsukihi
             HAVING COUNT(DISTINCT keibajo_code || race_bango) >= 12
             ORDER BY kaisai_tsukihi;
-        """, (year, month_str))
+        """, (year, month_str, jra_codes))
     else:
-        # 全月（レース数12以上の日のみ）
+        # 全月（JRA競馬場、レース数12以上の日のみ）
         cursor.execute("""
             SELECT kaisai_tsukihi
             FROM jvd_se
             WHERE kaisai_nen = %s
+              AND keibajo_code IN %s
+              AND kakutei_chakujun IS NOT NULL
+              AND kakutei_chakujun != ''
             GROUP BY kaisai_tsukihi
             HAVING COUNT(DISTINCT keibajo_code || race_bango) >= 12
             ORDER BY kaisai_tsukihi;
-        """, (year,))
+        """, (year, jra_codes))
     
     dates = [row[0] for row in cursor.fetchall()]
     
@@ -75,6 +85,9 @@ def get_monthly_summary(year='2025'):
     
     cursor = conn.cursor()
     
+    # JRA競馬場コード（中央競馬のみ）
+    jra_codes = ('01','02','03','04','05','06','07','08','09','10')
+    
     cursor.execute("""
         SELECT 
             SUBSTRING(kaisai_tsukihi, 1, 2) as month,
@@ -86,12 +99,15 @@ def get_monthly_summary(year='2025'):
                 COUNT(DISTINCT keibajo_code || race_bango) as race_count
             FROM jvd_se
             WHERE kaisai_nen = %s
+              AND keibajo_code IN %s
+              AND kakutei_chakujun IS NOT NULL
+              AND kakutei_chakujun != ''
             GROUP BY kaisai_tsukihi
             HAVING COUNT(DISTINCT keibajo_code || race_bango) >= 12
         ) as valid_days
         GROUP BY SUBSTRING(kaisai_tsukihi, 1, 2)
         ORDER BY month;
-    """, (year,))
+    """, (year, jra_codes))
     
     summary = cursor.fetchall()
     
