@@ -508,7 +508,7 @@ def fetch_today_data(conn, target_date: str):
     logger.info(f"✅ race_id 生成完了（サンプル: {df['race_id'].iloc[0] if len(df) > 0 else 'なし'}）")
     
     # ===== 表示用カラムを別途保存 =====
-    display_col_names = ['bamei', 'kishumei_ryakusho', 'chokyoshimei_ryakusho', 'banushimei', 'keibajo_code', 'kaisai_tsukihi', 'race_bango', 'umaban']
+    display_col_names = ['race_id', 'bamei', 'kishumei_ryakusho', 'chokyoshimei_ryakusho', 'banushimei', 'keibajo_code', 'kaisai_tsukihi', 'race_bango', 'umaban']
     display_data = {}
     for col in display_col_names:
         if col in df.columns:
@@ -676,7 +676,7 @@ def ensemble_predict(models, df, display_data):
     
     # 偏差値計算（レース内で標準化）
     logger.info("\n🔧 偏差値計算中...")
-    result_df = result_df.groupby('race_id').apply(calculate_hensachi_for_race)
+    result_df = result_df.groupby('race_id', group_keys=False).apply(calculate_hensachi_for_race)
     result_df = result_df.reset_index(drop=True)
     
     # 偏差値ランク付与
