@@ -1,0 +1,79 @@
+E:\anonymous-keiba-ai-JRA\          ← ユーザーのローカルPC作業ディレクトリ
+├── config/
+│   ├── db_config.yaml              # DB接続設定（JRA-VAN + JRDB）
+│   ├── feature_config.yaml         # 特徴量設定（148カラム定義）
+│   └── model_config.yaml           # モデル設定（LightGBM + Optuna）
+├── data/
+│   ├── raw/                        # 生データ（Phase 1で生成）
+│   │   └── jra_integrated_keibajo_XX.csv
+│   ├── processed/                  # 前処理済みデータ（Phase 2で生成）
+│   │   └── jra_processed_keibajo_XX.csv
+│   └── features/                   # 特徴量選択後データ（Phase 3で生成）
+│       └── jra_boruta_selected_keibajo_XX.csv
+├── models/
+│   ├── boruta/                     # Boruta選択結果（Phase 3）
+│   │   ├── boruta_selector.pkl
+│   │   ├── selected_features.csv
+│   │   ├── tentative_features.csv
+│   │   └── rejected_features.csv
+│   ├── lightgbm/                   # LightGBMモデル（Phase 4）
+│   │   ├── lgbm_final_model.txt
+│   │   ├── lgbm_feature_importance.png
+│   │   └── lgbm_evaluation_report.txt
+│   └── optuna/                     # Optunaチューニング結果（Phase 4）
+│       └── optuna_study.pkl
+├── scripts/
+│   ├── phase0_setup.py             # Phase 0: DB接続テスト
+│   ├── phase1_data_extraction.py   # Phase 1: データ抽出
+│   ├── phase2_preprocessing.py     # Phase 2: 前処理
+│   ├── phase3_boruta_selection.py  # Phase 3: Boruta特徴量選択
+│   ├── phase4_lightgbm_optuna.py   # Phase 4: LightGBM + Optuna学習
+│   └── phase5_evaluation.py        # Phase 5: モデル評価
+├── sql/
+│   ├── jravan_extraction.sql       # JRA-VAN抽出SQL（97カラム）
+│   └── jrdb_extraction.sql         # JRDB抽出SQL（48カラム）
+├── logs/
+│   ├── phase0.log
+│   ├── phase1.log
+│   ├── phase2.log
+│   ├── phase3.log
+│   ├── phase4.log
+│   └── phase5.log
+├── results/                        # Phase 5: 評価結果
+│   ├── plots/
+│   │   ├── feature_importance_top20.png
+│   │   ├── roc_curve.png
+│   │   └── confusion_matrix.png
+│   └── evaluation_report.txt
+├── docs/                           # ドキュメント（既存）
+│   ├── INTEGRATED_FEATURE_SPECIFICATION_FINAL.md
+│   ├── JRA_DEVELOPMENT_FLOW.md
+│   ├── jra_context_protocol_v3.md
+│   ├── SETUP_MANUAL_PHASE_0_TO_5.md
+│   ├── OPTIMAL_PAST_RACE_FEATURES_FINAL.md
+│   ├── JRAVAN_ALL_Columns_COMPLETE_FINAL.csv
+│   ├── JRDB_ALL_Columns_COMPLETE.csv
+│   └── session_log.md              # セッション記録
+├── requirements.txt                # Python依存パッケージ
+├── README.md                       # プロジェクト概要
+└── .gitignore                      # Git除外設定
+
+【ディレクトリ作成コマンド（Windows PowerShell）】
+
+cd E:\
+mkdir anonymous-keiba-ai-JRA
+cd anonymous-keiba-ai-JRA
+
+# サブディレクトリ作成
+mkdir config, data\raw, data\processed, data\features
+mkdir models\boruta, models\lightgbm, models\optuna
+mkdir scripts, sql, logs, results\plots, docs
+
+# 確認
+tree /F
+
+【注意事項】
+- 全てのパスは E:\anonymous-keiba-ai-JRA 配下に作成
+- data/ 配下はGit管理対象外（.gitignoreで除外）
+- models/ 配下もGit管理対象外（大容量ファイルのため）
+- scripts/, sql/, docs/ はGit管理対象

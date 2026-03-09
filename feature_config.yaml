@@ -1,0 +1,131 @@
+# JRA中央競馬AI - 特徴量設定
+# 統合特徴量仕様: 148カラム（JRA-VAN 97 + JRDB 48 + 派生 3）
+
+# ===== 競馬場コード定義（11競馬場 + 小倉季節分割） =====
+racetracks:
+  - code: '01'
+    name: 札幌
+    season: summer
+    months: [6, 7, 8]
+  - code: '02'
+    name: 函館
+    season: summer
+    months: [6, 7, 8]
+  - code: '03'
+    name: 福島
+    season: all
+    months: [4, 5, 7, 10, 11]
+  - code: '04'
+    name: 新潟
+    season: summer
+    months: [5, 8, 9, 10]
+  - code: '05'
+    name: 東京
+    season: all
+    months: [1, 2, 3, 4, 5, 6, 10, 11, 12]
+  - code: '06'
+    name: 中山
+    season: all
+    months: [1, 2, 3, 9, 12]
+  - code: '07'
+    name: 中京
+    season: all
+    months: [1, 3, 6, 7, 12]
+  - code: '08'
+    name: 京都
+    season: all
+    months: [1, 2, 4, 5, 9, 10, 11]
+  - code: '09'
+    name: 阪神
+    season: all
+    months: [1, 2, 3, 4, 6, 9, 12]
+  - code: '10_summer'
+    name: 小倉（夏）
+    season: summer
+    months: [7, 8]
+    note: 夏枯れ芝、高温多湿、ペース早い
+  - code: '10_winter'
+    name: 小倉（冬）
+    season: winter
+    months: [1, 2]
+    note: 冬芝良好、寒冷、ペース遅い
+
+# ===== データ抽出期間 =====
+extraction_period:
+  start_year: 2020
+  end_year: 2025
+  note: 約5年分のデータを使用
+
+# ===== 特徴量カウント =====
+feature_counts:
+  jravan_total: 97
+  jravan_basic: 24           # 基礎情報系
+  jravan_horse_stats: 14     # 馬実績データ（jvd_ck）
+  jravan_past_races: 58      # 過去走データ（パターンC+）
+  jravan_target: 1           # ターゲット変数
+  
+  jrdb_total: 48
+  jrdb_prediction: 13        # 予測指数系
+  jrdb_training: 5           # 調教・厩舎評価系
+  jrdb_aptitude: 6           # 馬の適性・状態系
+  jrdb_pace: 2               # 展開予想系
+  jrdb_rank: 6               # ランク・その他
+  jrdb_cid: 7                # CID・LS指数系
+  jrdb_training_b: 2         # 調教データB
+  jrdb_past_races: 7         # 過去走データ
+  
+  derived_total: 3
+  derived_distance: 3        # 距離増減系
+  
+  total_features: 148        # JRA-VAN 97 + JRDB 48 + 派生 3
+
+# ===== 過去走設計（パターンC+） =====
+past_race_design:
+  pattern: "C+"
+  description: "ハイブリッド・コンテキストモデル"
+  layers:
+    high_resolution:         # 高解像度レイヤー
+      target: "直近2走（t-1, t-2）"
+      purpose: "現在の調子（Form）を微細に捉える"
+      columns: 28
+    low_resolution:          # 低解像度レイヤー
+      target: "過去5走（t-1～t-5）統計"
+      purpose: "潜在能力・格（Class）を安定的に把握"
+      columns: 18
+    context:                 # コンテキストレイヤー
+      target: "条件別実績"
+      purpose: "今回レースとの関連性（Context）を評価"
+      columns: 12
+
+# ===== データリーク防止（除外カラム） =====
+# 予測対象レースの結果データは特徴量に含めない
+exclude_columns:
+  result_data:
+    - kakutei_chakujun       # 着順（予測対象）
+    - soha_time              # 走破タイム（結果）
+    - kohan_3f               # 上がり3F（結果）
+    - corner_1               # コーナー通過順位1（結果）
+    - corner_2               # コーナー通過順位2（結果）
+    - corner_3               # コーナー通過順位3（結果）
+    - corner_4               # コーナー通過順位4（結果）
+    - time_sa                # 着差（結果）
+    - bataiju                # 馬体重（レース当日朝確定、リーク注意）
+    - zogen_sa               # 馬体重増減（同上）
+    - tansho_odds            # 単勝オッズ（レース後確定）
+    - tansho_ninkijun        # 単勝人気順位（レース後確定）
+  identification_only:
+    - kaisai_nen             # 開催年（識別用、学習に使わない）
+    - kaisai_tsukihi         # 開催月日（識別用、学習に使わない）
+    - race_bango             # レース番号（識別用、学習に使わない）
+
+# ===== カテゴリカル変数 =====
+categorical_variables:
+  - keibajo_season_code      # 競馬場季節コード（11パターン）★特徴量として使用
+  - track_code               # トラック種別（芝/ダート/障害）
+  - grade_code               # グレードコード（G1～条件戦）
+  - seibetsu_code            # 性別コード（牡/牝/セン）
+  - babajotai_code_shiba     # 芝馬場状態
+  - babajotai_code_dirt      # ダート馬場状態
+  - kyakushitsu_code         # 脚質コード（逃げ/先行/差し/追込）
+  - kyori_tekisei_code       # 距離適性コード
+  - pace_yoso                # ペース予想（H/M/S）

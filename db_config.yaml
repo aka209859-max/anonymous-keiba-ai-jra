@@ -1,0 +1,25 @@
+# JRA中央競馬AI - データベース接続設定
+# ユーザーのローカルPostgreSQL設定に合わせて編集してください
+
+# JRA-VANデータベース設定
+jravan:
+  host: localhost          # または 127.0.0.1
+  port: 5432
+  database: jra_keiba      # JRA-VANデータベース名
+  user: postgres           # PostgreSQLユーザー名
+  password: postgres123    # PostgreSQLパスワード（実際の値に変更）
+  
+# JRDBデータベース設定
+# 注意: JRA-VANと同一DBの場合、スキーマで分離している可能性あり
+jrdb:
+  host: localhost
+  port: 5432
+  database: jra_keiba      # JRDBデータベース名（JRA-VANと同じ場合あり）
+  user: postgres
+  password: postgres123    # PostgreSQLパスワード（実際の値に変更）
+
+# 接続タイムアウト設定
+connection:
+  timeout: 30              # 秒
+  retry_count: 3           # リトライ回数
+  pool_size: 5             # 接続プールサイズ
