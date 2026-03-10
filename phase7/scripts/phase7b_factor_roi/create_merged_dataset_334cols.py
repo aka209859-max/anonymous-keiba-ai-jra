@@ -163,21 +163,38 @@ def generate_sql_from_csv(csv_path):
     # FROM句とJOIN句
     sql_lines.append("FROM jvd_se AS se")
     
+    # JRA-VANテーブルのJOIN（複合キー使用）
     for table_full, alias in jvd_tables.items():
         if table_full in table_columns:
-            sql_lines.append(f"LEFT JOIN {table_full} AS {alias} ON se.race_id = {alias}.race_id")
+            sql_lines.append(
+                f"LEFT JOIN {table_full} AS {alias} ON "
+                f"se.kaisai_nen = {alias}.kaisai_nen AND "
+                f"se.kaisai_tsukihi = {alias}.kaisai_tsukihi AND "
+                f"se.keibajo_code = {alias}.keibajo_code AND "
+                f"se.race_bango = {alias}.race_bango"
+            )
     
+    # JRDBテーブルのJOIN（race_id使用）
     for table_full, alias in jrdb_tables.items():
         if table_full in table_columns:
+            # race_idを複合キーから生成
+            # race_id = kaisai_nen + keibajo_code + kaisai_kai + kaisai_nichime + race_bango
             if table_full == 'jrd_bac':
-                sql_lines.append(f"LEFT JOIN {table_full} AS {alias} ON se.race_id = {alias}.race_id")
+                sql_lines.append(
+                    f"LEFT JOIN {table_full} AS {alias} ON "
+                    f"(se.kaisai_nen || se.keibajo_code || COALESCE(se.kaisai_kai, '00') || COALESCE(se.kaisai_nichime, '00') || se.race_bango) = {alias}.race_id"
+                )
             else:
-                sql_lines.append(f"LEFT JOIN {table_full} AS {alias} ON se.race_id = {alias}.race_id AND se.umaban = {alias}.umaban")
+                sql_lines.append(
+                    f"LEFT JOIN {table_full} AS {alias} ON "
+                    f"(se.kaisai_nen || se.keibajo_code || COALESCE(se.kaisai_kai, '00') || COALESCE(se.kaisai_nichime, '00') || se.race_bango) = {alias}.race_id AND "
+                    f"se.umaban = {alias}.umaban"
+                )
     
     # WHERE句
     sql_lines.append("WHERE kyi.race_shikonen ~ '^[0-9]+$'")
     sql_lines.append("  AND CAST(kyi.race_shikonen AS INTEGER) < 260201")
-    sql_lines.append("ORDER BY se.race_id, se.umaban;")
+    sql_lines.append("ORDER BY se.kaisai_nen, se.kaisai_tsukihi, se.keibajo_code, se.race_bango, se.umaban;")
     
     sql_text = "\n".join(sql_lines)
     
