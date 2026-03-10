@@ -1,18 +1,36 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Phase 7-B: JRA-VAN + JRDB 統合データセット作成スクリプト
+Phase 7-B: JRA-VAN (218列) + JRDB (116列) 統合データセット作成スクリプト（自動SQL生成版）
 
-目的: 334カラム（JRA-VAN 218 + JRDB 116）の統合データセット作成
-出力: jravan_jrdb_merged_334cols_2016_2025.csv
-期待行数: 460,424行
-期待カラム数: 334カラム
+【目的】
+- PHASE7A_COMBINED_497_UNIQUE_COLNAME.csv からSQL自動生成
+- PostgreSQL (pckeiba) から JRA-VAN + JRDB データを取得
+- 334カラムに統合して CSV 出力
+- 期間: 2016-2025年（確定レースのみ、race_shikonen < 260201）
+- 出力行数: 約460,424行
+
+【出力先】
+E:\\anonymous-keiba-ai-JRA\\phase7\\results\\phase7b_roi\\jravan_jrdb_merged_334cols_2016_2025.csv
+
+【実行方法】
+cd E:\\anonymous-keiba-ai-JRA\\phase7\\scripts\\phase7b
+python create_merged_dataset_334cols.py
+
+【予想処理時間】
+約10-15分（データ量460,424行 × 334列 ≈ 125.5 MB）
 """
 
+import os
+import sys
 import psycopg2
 import pandas as pd
-import os
 from datetime import datetime
+from collections import defaultdict
 
+# ====================
 # 設定
+# ====================
 DB_CONFIG = {
     'host': '127.0.0.1',
     'port': 5432,
@@ -21,257 +39,266 @@ DB_CONFIG = {
     'password': 'postgres123'
 }
 
-OUTPUT_DIR = r"E:\anonymous-keiba-ai-JRA\phase7\results\phase7b_roi"
-OUTPUT_FILE = "jravan_jrdb_merged_334cols_2016_2025.csv"
+INPUT_CSV = r'E:\anonymous-keiba-ai-JRA\docs\PHASE7A_COMBINED_497_UNIQUE_COLNAME.csv'
+OUTPUT_DIR = r'E:\anonymous-keiba-ai-JRA\phase7\results\phase7b_roi'
+OUTPUT_FILE = 'jravan_jrdb_merged_334cols_2016_2025.csv'
+OUTPUT_PATH = os.path.join(OUTPUT_DIR, OUTPUT_FILE)
 
-def create_connection():
-    """PostgreSQL接続を作成"""
+# ====================
+# SQL自動生成関数
+# ====================
+def generate_sql_from_csv(csv_path):
+    """
+    CSVファイルから334カラムのSELECT文を自動生成
+    """
+    print("🔧 SQL自動生成中...")
+    
+    # CSV読み込み
+    df = pd.read_csv(csv_path, encoding='utf-8-sig')
+    
+    # テーブル別にカラムをグループ化
+    table_columns = defaultdict(list)
+    
+    for _, row in df.iterrows():
+        table_name = row['table_name']
+        column_name = row['column_name']
+        japanese_name = row.get('japanese_name', '')
+        
+        table_columns[table_name].append({
+            'column': column_name,
+            'japanese': japanese_name
+        })
+    
+    # テーブル別カラム数表示
+    print("\n【テーブル別カラム数】")
+    print("-" * 80)
+    total_cols = 0
+    for table, cols in sorted(table_columns.items()):
+        print(f"  {table:20s} : {len(cols):3d} カラム")
+        total_cols += len(cols)
+    print("-" * 80)
+    print(f"  {'合計':20s} : {total_cols:3d} カラム\n")
+    
+    # テーブル定義
+    jvd_se_cols = table_columns.get('jvd_se', [])
+    
+    jvd_tables = {
+        'jvd_ra': 'ra',
+        'jvd_ck': 'ck',
+        'jvd_um': 'um',
+        'jvd_hr': 'hr',
+        'jvd_h1': 'h1',
+        'jvd_h6': 'h6',
+        'jvd_dm': 'dm',
+        'jvd_bt': 'bt',
+        'jvd_wc': 'wc',
+        'jvd_hc': 'hc',
+        'jvd_ch': 'ch',
+        'jvd_hn': 'hn',
+        'jvd_br': 'br',
+        'jvd_jg': 'jg',
+        'jvd_sk': 'sk'
+    }
+    
+    jrdb_tables = {
+        'jrd_kyi': 'kyi',
+        'jrd_cyb': 'cyb',
+        'jrd_sed': 'sed',
+        'jrd_joa': 'joa',
+        'jrd_bac': 'bac'
+    }
+    
+    # SQL構築
+    sql_lines = []
+    sql_lines.append("SELECT")
+    sql_lines.append("    -- 主キー（3列）")
+    sql_lines.append("    se.race_id,")
+    sql_lines.append("    se.umaban,")
+    sql_lines.append("    se.kaisai_tsukihi,")
+    sql_lines.append("")
+    
+    # jvd_se の残りカラム（主キー以外）
+    sql_lines.append("    -- JRA-VAN: jvd_se")
+    for col_info in jvd_se_cols:
+        col = col_info['column']
+        if col in ['race_id', 'umaban', 'kaisai_tsukihi']:
+            continue
+        sql_lines.append(f"    se.{col},")
+    sql_lines.append("")
+    
+    # その他JRA-VANテーブル
+    for table_full, alias in jvd_tables.items():
+        cols = table_columns.get(table_full, [])
+        if not cols:
+            continue
+        
+        sql_lines.append(f"    -- JRA-VAN: {table_full}")
+        for col_info in cols:
+            col = col_info['column']
+            sql_lines.append(f"    {alias}.{col},")
+        sql_lines.append("")
+    
+    # JRDBテーブル
+    for idx, (table_full, alias) in enumerate(jrdb_tables.items()):
+        cols = table_columns.get(table_full, [])
+        if not cols:
+            continue
+        
+        sql_lines.append(f"    -- JRDB: {table_full}")
+        
+        is_last_table = (idx == len(jrdb_tables) - 1)
+        
+        for i, col_info in enumerate(cols):
+            col = col_info['column']
+            is_last_col = (i == len(cols) - 1)
+            
+            # 最後のテーブルの最後のカラムはカンマなし
+            if is_last_table and is_last_col:
+                sql_lines.append(f"    {alias}.{col}")
+            else:
+                sql_lines.append(f"    {alias}.{col},")
+        
+        sql_lines.append("")
+    
+    # FROM句とJOIN句
+    sql_lines.append("FROM jvd_se AS se")
+    
+    for table_full, alias in jvd_tables.items():
+        if table_full in table_columns:
+            sql_lines.append(f"LEFT JOIN {table_full} AS {alias} ON se.race_id = {alias}.race_id")
+    
+    for table_full, alias in jrdb_tables.items():
+        if table_full in table_columns:
+            if table_full == 'jrd_bac':
+                sql_lines.append(f"LEFT JOIN {table_full} AS {alias} ON se.race_id = {alias}.race_id")
+            else:
+                sql_lines.append(f"LEFT JOIN {table_full} AS {alias} ON se.race_id = {alias}.race_id AND se.umaban = {alias}.umaban")
+    
+    # WHERE句
+    sql_lines.append("WHERE kyi.race_shikonen ~ '^[0-9]+$'")
+    sql_lines.append("  AND CAST(kyi.race_shikonen AS INTEGER) < 260201")
+    sql_lines.append("ORDER BY se.race_id, se.umaban;")
+    
+    sql_text = "\n".join(sql_lines)
+    
+    print("   ✅ SQL自動生成完了")
+    print(f"   総行数: {len(sql_lines)} 行")
+    print()
+    
+    return sql_text
+
+# ====================
+# メイン処理
+# ====================
+def main():
+    print("=" * 80)
+    print("Phase 7-B: JRA-VAN + JRDB 統合データセット作成（自動SQL生成版）")
+    print(f"実行時刻: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 80)
+    print()
+    
+    # 1. 出力ディレクトリ作成
+    print(f"📂 出力ディレクトリ作成: {OUTPUT_DIR}")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    print("   ✅ 完了\n")
+    
+    # 2. CSV確認
+    print(f"📄 CSV確認: {INPUT_CSV}")
+    if not os.path.exists(INPUT_CSV):
+        print(f"   ❌ ファイルが見つかりません: {INPUT_CSV}")
+        sys.exit(1)
+    print("   ✅ 確認完了\n")
+    
+    # 3. SQL自動生成
+    try:
+        sql = generate_sql_from_csv(INPUT_CSV)
+    except Exception as e:
+        print(f"   ❌ SQL生成失敗: {e}")
+        sys.exit(1)
+    
+    # 4. PostgreSQL接続
+    print("🔌 PostgreSQL接続中...")
     try:
         conn = psycopg2.connect(**DB_CONFIG)
-        print(f"✅ PostgreSQL接続成功: {DB_CONFIG['database']}")
-        return conn
+        print("   ✅ 接続成功\n")
     except Exception as e:
-        print(f"❌ PostgreSQL接続失敗: {e}")
-        return None
-
-def get_jravan_columns():
-    """JRA-VANテーブルのカラムリストを取得"""
-    # Phase 7-Aで選定された218カラム
-    # ここでは主要テーブルから取得（実際はPHASE7A_COMBINED_497_UNIQUE_COLNAME.csvから読み込む）
-    return [
-        'jvd_se.*',  # レース成績
-        'jvd_ra.*',  # レース基本情報
-        'jvd_ck.*',  # レース詳細情報
-    ]
-
-def get_jrdb_columns():
-    """JRDBテーブルのカラムリストを取得"""
-    # Phase 7-Aで選定された116カラム
-    return [
-        'jrd_kyi.*',  # 65カラム
-        'jrd_cyb.*',  # 18カラム
-        'jrd_sed.*',  # 14カラム
-        'jrd_joa.*',  # 10カラム
-        'jrd_bac.*',  # 9カラム
-    ]
-
-def create_merged_dataset(conn):
-    """334カラム統合データセット作成"""
+        print(f"   ❌ 接続失敗: {e}")
+        sys.exit(1)
     
-    print("\n📊 統合データセット作成開始...")
-    
-    # SQL作成（簡易版：全カラム取得）
-    query = """
-    SELECT 
-        -- 基本キー
-        se.race_id,
-        se.umaban,
-        se.kaisai_nengappi,
-        se.keibajo_code,
-        se.race_bango,
-        se.bamei,
-        se.kakutei_chakujun,
-        
-        -- JRA-VANカラム（主要なもの抜粋）
-        se.seibetsu_code,
-        se.barei,
-        se.kinryo,
-        se.kishumei,
-        se.bataiju,
-        se.bataiju_zogen,
-        se.tansho_odds,
-        se.tansho_ninkijun,
-        
-        ra.kyori,
-        ra.track_code,
-        ra.grade_code,
-        ra.shusso_tosu,
-        ra.babajotai_code_shiba,
-        ra.babajotai_code_dirt,
-        
-        -- JRDBカラム（jrd_kyi: 65カラム抜粋）
-        kyi.idm,
-        kyi.kishu_shisu,
-        kyi.joho_shisu,
-        kyi.sogo_shisu,
-        kyi.chokyo_shisu,
-        kyi.kyusha_shisu,
-        kyi.gekiso_shisu,
-        kyi.ninki_shisu,
-        kyi.ten_shisu,
-        kyi.pace_shisu,
-        kyi.agari_shisu,
-        kyi.ichi_shisu,
-        kyi.manken_shisu,
-        kyi.kyakushitsu_code AS jrdb_kyakushitsu_code,
-        kyi.kyori_tekisei_code,
-        kyi.joshodo_code,
-        kyi.class_code AS jrdb_class_code,
-        kyi.hizume_code,
-        kyi.pace_yoso,
-        kyi.uma_deokure_ritsu,
-        kyi.rotation,
-        kyi.hobokusaki_rank,
-        kyi.kyusha_rank,
-        kyi.bataiju AS jrdb_bataiju,
-        kyi.bataiju_zogen AS jrdb_bataiju_zogen,
-        kyi.uma_start_shisu,
-        
-        -- JRDBカラム（jrd_cyb: 18カラム抜粋）
-        cyb.chokyo_hyoka,
-        cyb.shiage_shisu,
-        cyb.oikiri_shisu,
-        cyb.chokyo_corse_shubetsu,
-        cyb.chokyo_kyori,
-        
-        -- JRDBカラム（jrd_sed: 14カラム抜粋）
-        sed.pace AS jrdb_pace,
-        sed.deokure,
-        sed.ichidori,
-        sed.furi,
-        sed.kohan_3f,
-        sed.race_p_shisu,
-        
-        -- JRDBカラム（jrd_joa: 10カラム）
-        joa.cid,
-        joa.ls_shisu,
-        joa.ls_hyoka,
-        joa.em,
-        joa.kyusha_bb_shirushi,
-        joa.kishu_bb_shirushi,
-        
-        -- JRDBカラム（jrd_bac: 9カラム抜粋）
-        bac.honshokin,
-        bac.kyosomei
-        
-    FROM jvd_se se
-    LEFT JOIN jvd_ra ra ON (
-        se.kaisai_nengappi = ra.kaisai_nengappi 
-        AND se.keibajo_code = ra.keibajo_code 
-        AND se.race_bango = ra.race_bango
-    )
-    LEFT JOIN jrd_kyi kyi ON (
-        se.kaisai_nengappi = kyi.kaisai_nengappi 
-        AND se.keibajo_code = kyi.keibajo_code 
-        AND se.race_bango = kyi.race_bango 
-        AND se.umaban = kyi.umaban
-    )
-    LEFT JOIN jrd_cyb cyb ON (
-        se.kaisai_nengappi = cyb.kaisai_nengappi 
-        AND se.keibajo_code = cyb.keibajo_code 
-        AND se.race_bango = cyb.race_bango 
-        AND se.umaban = cyb.umaban
-    )
-    LEFT JOIN jrd_sed sed ON (
-        se.kaisai_nengappi = sed.kaisai_nengappi 
-        AND se.keibajo_code = sed.keibajo_code 
-        AND se.race_bango = sed.race_bango 
-        AND se.umaban = sed.umaban
-    )
-    LEFT JOIN jrd_joa joa ON (
-        se.kaisai_nengappi = joa.kaisai_nengappi 
-        AND se.keibajo_code = joa.keibajo_code 
-        AND se.race_bango = joa.race_bango 
-        AND se.umaban = joa.umaban
-    )
-    LEFT JOIN jrd_bac bac ON (
-        se.kaisai_nengappi = bac.kaisai_nengappi 
-        AND se.keibajo_code = bac.keibajo_code 
-        AND se.race_bango = bac.race_bango
-    )
-    WHERE 
-        kyi.race_shikonen ~ '^[0-9]+$'
-        AND CAST(kyi.race_shikonen AS INTEGER) < 260201
-        AND se.kakutei_chakujun IS NOT NULL
-        AND se.kakutei_chakujun != ''
-    ORDER BY se.kaisai_nengappi, se.keibajo_code, se.race_bango, se.umaban
-    """
+    # 5. データ取得
+    print("📊 データ取得中（約10-15分かかる可能性があります）...")
+    print("   対象期間: 2016-2025年（確定レースのみ）")
+    print("   予想行数: 約460,424行\n")
     
     try:
-        print("📥 データ抽出中...")
-        df = pd.read_sql(query, conn)
-        
-        print(f"✅ データ抽出完了")
-        print(f"  - 行数: {len(df):,} 行")
-        print(f"  - カラム数: {len(df.columns)} カラム")
-        
-        # 基本統計
-        print(f"\n📊 基本統計:")
-        print(f"  - 期間: {df['kaisai_nengappi'].min()} ～ {df['kaisai_nengappi'].max()}")
-        print(f"  - レース数: {df['race_id'].nunique():,} レース")
-        print(f"  - 競馬場数: {df['keibajo_code'].nunique()} 場")
-        
-        # 欠損値チェック
-        null_counts = df.isnull().sum()
-        null_cols = null_counts[null_counts > 0]
-        if len(null_cols) > 0:
-            print(f"\n⚠️  欠損値あり（上位10カラム）:")
-            for col, count in null_cols.head(10).items():
-                pct = (count / len(df)) * 100
-                print(f"  - {col}: {count:,} 行 ({pct:.2f}%)")
-        else:
-            print(f"\n✅ 欠損値なし")
-        
-        return df
-        
+        df = pd.read_sql(sql, conn)
+        print(f"   ✅ 取得完了: {len(df):,} 行 × {len(df.columns)} 列\n")
     except Exception as e:
-        print(f"❌ データ抽出失敗: {e}")
-        return None
-
-def save_dataset(df, output_path):
-    """データセットをCSV保存"""
-    try:
-        # ディレクトリ作成
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # CSV保存
-        print(f"\n💾 CSV保存中: {output_path}")
-        df.to_csv(output_path, index=False, encoding='utf-8-sig')
-        
-        # ファイルサイズ確認
-        file_size = os.path.getsize(output_path) / (1024 * 1024)  # MB
-        print(f"✅ CSV保存完了")
-        print(f"  - ファイルサイズ: {file_size:.2f} MB")
-        print(f"  - パス: {output_path}")
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ CSV保存失敗: {e}")
-        return False
-
-def main():
-    """メイン処理"""
-    print("=" * 80)
-    print("Phase 7-B: JRA-VAN + JRDB 統合データセット作成")
-    print("=" * 80)
-    print(f"実行日時: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    # PostgreSQL接続
-    conn = create_connection()
-    if conn is None:
-        return
-    
-    try:
-        # 統合データセット作成
-        df = create_merged_dataset(conn)
-        if df is None:
-            return
-        
-        # CSV保存
-        output_path = os.path.join(OUTPUT_DIR, OUTPUT_FILE)
-        if save_dataset(df, output_path):
-            print("\n" + "=" * 80)
-            print("✅ Phase 7-B 統合データセット作成完了")
-            print("=" * 80)
-            print(f"📁 出力ファイル: {output_path}")
-            print(f"📊 行数: {len(df):,} 行")
-            print(f"📊 カラム数: {len(df.columns)} カラム")
-            print("\n🔜 次のステップ: 単一カラムROI分析")
-        
-    finally:
+        print(f"   ❌ 取得失敗: {e}")
         conn.close()
-        print("\n✅ PostgreSQL接続クローズ")
+        sys.exit(1)
+    
+    conn.close()
+    
+    # 6. 基本統計情報
+    print("=" * 80)
+    print("📈 データ概要")
+    print("=" * 80)
+    print(f"行数: {len(df):,}")
+    print(f"列数: {len(df.columns)}")
+    print(f"メモリ使用量: {df.memory_usage(deep=True).sum() / 1024**2:.1f} MB\n")
+    
+    print("【最初の5行】")
+    print(df.head())
+    print()
+    
+    print("【欠損値サマリー】")
+    missing = df.isnull().sum()
+    missing_pct = (missing / len(df) * 100).round(2)
+    missing_df = pd.DataFrame({
+        'カラム': missing.index,
+        '欠損数': missing.values,
+        '欠損率(%)': missing_pct.values
+    })
+    missing_df = missing_df[missing_df['欠損数'] > 0].sort_values('欠損数', ascending=False)
+    
+    if len(missing_df) > 0:
+        print(missing_df.head(20).to_string(index=False))
+        if len(missing_df) > 20:
+            print(f"\n... (残り {len(missing_df) - 20} カラム)")
+    else:
+        print("✅ 欠損値なし（すべて100%充填）")
+    print()
+    
+    # 7. CSV保存
+    print("=" * 80)
+    print("💾 CSV保存中...")
+    print("=" * 80)
+    print(f"保存先: {OUTPUT_PATH}\n")
+    
+    try:
+        df.to_csv(OUTPUT_PATH, index=False, encoding='utf-8-sig')
+        file_size_mb = os.path.getsize(OUTPUT_PATH) / 1024**2
+        print(f"   ✅ 保存完了")
+        print(f"   ファイルサイズ: {file_size_mb:.1f} MB\n")
+    except Exception as e:
+        print(f"   ❌ 保存失敗: {e}")
+        sys.exit(1)
+    
+    # 8. 完了メッセージ
+    print("=" * 80)
+    print("🎉 Phase 7-B 統合データセット作成完了！")
+    print("=" * 80)
+    print()
+    print("【次のステップ】")
+    print("1. 単一カラムROI分析スクリプト実行")
+    print("   → python single_column_roi_analysis.py")
+    print()
+    print("2. Top 100カラム選定")
+    print("   → ROI ≥ 105%のカラムを抽出")
+    print()
+    print(f"完了時刻: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 80)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
