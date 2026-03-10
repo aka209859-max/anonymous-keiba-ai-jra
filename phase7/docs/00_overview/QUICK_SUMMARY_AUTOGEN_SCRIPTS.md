@@ -3,21 +3,21 @@
 ## ✅ 完成したもの（3つ）
 
 ### **1. SQL自動生成スクリプト**
-**ファイル**: `phase7/scripts/phase7b/generate_sql_for_334cols.py`
+**ファイル**: `phase7/scripts/phase7b_factor_roi/generate_sql_for_334cols.py`
 
 **何をするか**:
 - CSVファイル読む → 334列のSQL自動作成 → ファイル保存
 
 **使い方**:
 ```powershell
-cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b
+cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi
 python generate_sql_for_334cols.py
 ```
 
 ---
 
 ### **2. 統合データセット作成スクリプト（自動SQL挿入版）**
-**ファイル**: `phase7/scripts/phase7b/create_merged_dataset_334cols.py`
+**ファイル**: `phase7/scripts/phase7b_factor_roi/create_merged_dataset_334cols.py`
 
 **何をするか**:
 1. CSV読む
@@ -27,7 +27,7 @@ python generate_sql_for_334cols.py
 
 **使い方**:
 ```powershell
-cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b
+cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi
 python create_merged_dataset_334cols.py
 ```
 
@@ -40,7 +40,7 @@ python create_merged_dataset_334cols.py
 ---
 
 ### **3. PowerShell実行手順書**
-**ファイル**: `phase7/scripts/phase7b/POWERSHELL_EXECUTION_GUIDE.md`
+**ファイル**: `phase7/scripts/phase7b_factor_roi/POWERSHELL_EXECUTION_GUIDE.md`
 
 **内容**:
 - 実行手順（コピペでOK）
@@ -154,7 +154,7 @@ docs(phase7-b): Add Week 2 completion report - dataset creation scripts ready
 
 ### **次にやること（PCで実行）**
 ```powershell
-cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b
+cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi
 python create_merged_dataset_334cols.py
 ```
 

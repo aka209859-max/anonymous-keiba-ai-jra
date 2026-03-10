@@ -27,7 +27,7 @@ from collections import defaultdict
 # 設定
 # ====================
 INPUT_CSV = r'E:\anonymous-keiba-ai-JRA\docs\PHASE7A_COMBINED_497_UNIQUE_COLNAME.csv'
-OUTPUT_SQL = r'E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b\generated_sql_334cols.sql'
+OUTPUT_SQL = r'E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi\generated_sql_334cols.sql'
 
 # ====================
 # メイン処理

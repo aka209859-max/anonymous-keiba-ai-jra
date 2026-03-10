@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataSettings>
+  <TableDefinition name="jrd_kyi" description="JRDB 競走馬指数データ">
+    <columns>
+      <column name="keibajo_code" type="VARCHAR" length="2" description="競馬場コード"/>
+      <column name="race_shikonen" type="VARCHAR" length="10" description="レース施行年 YYMMDD形式"/>
+      <column name="kaisai_kai" type="VARCHAR" length="2" description="開催回"/>
+      <column name="kaisai_nichime" type="VARCHAR" length="2" description="開催日目"/>
+      <column name="race_bango" type="VARCHAR" length="2" description="レース番号"/>
+      <column name="umaban" type="VARCHAR" length="2" description="馬番"/>
+      <column name="ketto_toroku_bango" type="VARCHAR" length="10" description="血統登録番号"/>
+      <column name="bamei" type="VARCHAR" length="36" description="馬名"/>
+      <column name="idm" type="VARCHAR" length="10" description="IDM指数"/>
+      <column name="kishu_shisu" type="VARCHAR" length="10" description="騎手指数"/>
+      <column name="joho_shisu" type="VARCHAR" length="10" description="情報指数"/>
+      <column name="yobi_1" type="VARCHAR" length="10" description="予備1"/>
+      <column name="sogo_shisu" type="VARCHAR" length="10" description="総合指数"/>
+      <column name="kyakushitsu_code" type="VARCHAR" length="2" description="脚質コード"/>
+      <column name="kyori_tekisei_code" type="VARCHAR" length="2" description="距離適性コード"/>
+      <column name="joshodo_code" type="VARCHAR" length="1" description="上昇度コード"/>
+      <column name="rotation" type="VARCHAR" length="3" description="ローテーション"/>
+      <column name="kijun_odds_tansho" type="VARCHAR" length="10" description="基準オッズ単勝"/>
+      <column name="kijun_ninkijun_tansho" type="VARCHAR" length="10" description="基準人気順単勝"/>
+      <column name="kijun_odds_fukusho" type="VARCHAR" length="10" description="基準オッズ複勝"/>
+      <column name="tokki_code" type="VARCHAR" length="3" description="特記コード"/>
+      <column name="sogo_shisu_juni" type="VARCHAR" length="2" description="総合指数順位"/>
+      <column name="ls_shisu_juni" type="VARCHAR" length="2" description="LS指数順位"/>
+      <column name="ten_shisu" type="VARCHAR" length="10" description="テン指数"/>
+      <column name="pace_shisu" type="VARCHAR" length="10" description="ペース指数"/>
+      <column name="agari_shisu" type="VARCHAR" length="10" description="上がり指数"/>
+      <column name="ichi_dori_shisu" type="VARCHAR" length="10" description="位置取り指数"/>
+      <column name="pace_yoso" type="VARCHAR" length="1" description="ペース予想"/>
+      <column name="dochu_juni" type="VARCHAR" length="2" description="道中順位"/>
+      <column name="dochu_sa" type="VARCHAR" length="3" description="道中差"/>
+      <column name="agari_shisu_juni" type="VARCHAR" length="2" description="上がり指数順位"/>
+      <column name="ten_shisu_juni" type="VARCHAR" length="2" description="テン指数順位"/>
+      <column name="pace_shisu_juni" type="VARCHAR" length="2" description="ペース指数順位"/>
+      <column name="chokyo_shisu" type="VARCHAR" length="10" description="調教指数"/>
+      <column name="chokyo_yajirushi_code" type="VARCHAR" length="1" description="調教矢印コード"/>
+      <column name="gekiso_shisu" type="VARCHAR" length="10" description="激走指数"/>
+      <column name="gekiso_juni" type="VARCHAR" length="2" description="激走順位"/>
+      <column name="gekiso_type" type="VARCHAR" length="1" description="激走タイプ"/>
+      <column name="kyusoku_shisu" type="VARCHAR" length="10" description="休息指数"/>
+      <column name="class_code" type="VARCHAR" length="2" description="クラスコード"/>
+      <column name="bataiju_zoka" type="VARCHAR" length="4" description="馬体重増加"/>
+      <column name="bataiju_henka_code" type="VARCHAR" length="1" description="馬体重変化コード"/>
+      <column name="gekiso_joken" type="VARCHAR" length="3" description="激走条件"/>
+    </columns>
+    <PrimaryKey>
+      <key column="keibajo_code"/>
+      <key column="race_shikonen"/>
+      <key column="kaisai_kai"/>
+      <key column="kaisai_nichime"/>
+      <key column="race_bango"/>
+      <key column="umaban"/>
+    </PrimaryKey>
+  </TableDefinition>
+
+  <TableDefinition name="jrd_cyb" description="JRDB 調教データ">
+    <columns>
+      <column name="keibajo_code" type="VARCHAR" length="2" description="競馬場コード"/>
+      <column name="race_shikonen" type="VARCHAR" length="10" description="レース施行年 YYMMDD形式"/>
+      <column name="kaisai_kai" type="VARCHAR" length="2" description="開催回"/>
+      <column name="kaisai_nichime" type="VARCHAR" length="2" description="開催日目"/>
+      <column name="race_bango" type="VARCHAR" length="2" description="レース番号"/>
+      <column name="umaban" type="VARCHAR" length="2" description="馬番"/>
+      <column name="ketto_toroku_bango" type="VARCHAR" length="10" description="血統登録番号"/>
+      <column name="chokyo_corse_shubetsu" type="VARCHAR" length="2" description="調教コース種別"/>
+      <column name="chokyo_corse_shiba" type="VARCHAR" length="10" description="調教コース芝"/>
+      <column name="chokyo_corse_dirt" type="VARCHAR" length="10" description="調教コースダート"/>
+      <column name="chokyo_corse_pool" type="VARCHAR" length="10" description="調教コースプール"/>
+      <column name="chokyo_corse_hanro" type="VARCHAR" length="10" description="調教コース坂路"/>
+      <column name="chokyo_corse_wood" type="VARCHAR" length="10" description="調教コースウッド"/>
+      <column name="chokyo_corse_polytrack" type="VARCHAR" length="10" description="調教コースポリトラック"/>
+      <column name="chokyo_corse_shogai" type="VARCHAR" length="10" description="調教コース障害"/>
+      <column name="chokyo_kyori" type="VARCHAR" length="1" description="調教距離"/>
+      <column name="chokyo_juten" type="VARCHAR" length="2" description="調教重点"/>
+      <column name="chokyo_hyoka" type="VARCHAR" length="1" description="調教評価"/>
+      <column name="chokyo_ryo_hyoka" type="VARCHAR" length="1" description="調教量評価"/>
+      <column name="chokyo_comment" type="VARCHAR" length="200" description="調教コメント"/>
+    </columns>
+    <PrimaryKey>
+      <key column="keibajo_code"/>
+      <key column="race_shikonen"/>
+      <key column="kaisai_kai"/>
+      <key column="kaisai_nichime"/>
+      <key column="race_bango"/>
+      <key column="umaban"/>
+    </PrimaryKey>
+  </TableDefinition>
+
+  <TableDefinition name="jrd_joa" description="JRDB 騎手・厩舎情報">
+    <columns>
+      <column name="keibajo_code" type="VARCHAR" length="2" description="競馬場コード"/>
+      <column name="race_shikonen" type="VARCHAR" length="10" description="レース施行年 YYMMDD形式"/>
+      <column name="kaisai_kai" type="VARCHAR" length="2" description="開催回"/>
+      <column name="kaisai_nichime" type="VARCHAR" length="2" description="開催日目"/>
+      <column name="race_bango" type="VARCHAR" length="2" description="レース番号"/>
+      <column name="umaban" type="VARCHAR" length="2" description="馬番"/>
+      <column name="ketto_toroku_bango" type="VARCHAR" length="10" description="血統登録番号"/>
+      <column name="bamei" type="VARCHAR" length="36" description="馬名"/>
+      <column name="ls_shisu" type="VARCHAR" length="10" description="LS指数"/>
+      <column name="em_shisu" type="VARCHAR" length="10" description="EM指数"/>
+      <column name="cid" type="VARCHAR" length="10" description="CID"/>
+      <column name="kyusoku_riyuu" type="VARCHAR" length="1" description="休息理由"/>
+      <column name="seibetsu_code" type="VARCHAR" length="1" description="性別コード"/>
+      <column name="barei" type="VARCHAR" length="2" description="馬齢"/>
+      <column name="bagu_henka" type="VARCHAR" length="10" description="馬具変更"/>
+      <column name="ashimoto_joho" type="VARCHAR" length="10" description="脚元情報"/>
+    </columns>
+    <PrimaryKey>
+      <key column="keibajo_code"/>
+      <key column="race_shikonen"/>
+      <key column="kaisai_kai"/>
+      <key column="kaisai_nichime"/>
+      <key column="race_bango"/>
+      <key column="umaban"/>
+    </PrimaryKey>
+  </TableDefinition>
+
+  <TableDefinition name="jrd_sed" description="JRDB 成績詳細">
+    <columns>
+      <column name="keibajo_code" type="VARCHAR" length="2" description="競馬場コード"/>
+      <column name="race_shikonen" type="VARCHAR" length="10" description="レース施行年 YYMMDD形式"/>
+      <column name="kaisai_kai" type="VARCHAR" length="2" description="開催回"/>
+      <column name="kaisai_nichime" type="VARCHAR" length="2" description="開催日目"/>
+      <column name="race_bango" type="VARCHAR" length="2" description="レース番号"/>
+      <column name="umaban" type="VARCHAR" length="2" description="馬番"/>
+      <column name="ketto_toroku_bango" type="VARCHAR" length="10" description="血統登録番号"/>
+      <column name="bamei" type="VARCHAR" length="36" description="馬名"/>
+      <column name="pace" type="VARCHAR" length="1" description="ペース"/>
+      <column name="deokure" type="VARCHAR" length="1" description="出遅れ"/>
+      <column name="ichi_dori" type="VARCHAR" length="1" description="位置取り"/>
+      <column name="furi" type="VARCHAR" length="1" description="振り"/>
+      <column name="agari_3f" type="VARCHAR" length="5" description="上がり3F"/>
+      <column name="zenhan_3f" type="VARCHAR" length="5" description="前半3F"/>
+      <column name="kohan_3f" type="VARCHAR" length="5" description="後半3F"/>
+      <column name="course_dori_code" type="VARCHAR" length="2" description="コース取りコード"/>
+      <column name="babasa" type="VARCHAR" length="3" description="馬場差"/>
+    </columns>
+    <PrimaryKey>
+      <key column="keibajo_code"/>
+      <key column="race_shikonen"/>
+      <key column="kaisai_kai"/>
+      <key column="kaisai_nichime"/>
+      <key column="race_bango"/>
+      <key column="umaban"/>
+    </PrimaryKey>
+  </TableDefinition>
+
+  <TableDefinition name="jrd_bac" description="JRDB 馬券情報">
+    <columns>
+      <column name="keibajo_code" type="VARCHAR" length="2" description="競馬場コード"/>
+      <column name="race_shikonen" type="VARCHAR" length="10" description="レース施行年 YYMMDD形式"/>
+      <column name="kaisai_kai" type="VARCHAR" length="2" description="開催回"/>
+      <column name="kaisai_nichime" type="VARCHAR" length="2" description="開催日目"/>
+      <column name="race_bango" type="VARCHAR" length="2" description="レース番号"/>
+      <column name="baken_hatsubai_flag" type="VARCHAR" length="1" description="馬券発売フラグ"/>
+      <column name="honshokin" type="VARCHAR" length="10" description="本賞金"/>
+      <column name="fukashokin" type="VARCHAR" length="10" description="付加賞金"/>
+      <column name="race_comment" type="VARCHAR" length="200" description="レースコメント"/>
+    </columns>
+    <PrimaryKey>
+      <key column="keibajo_code"/>
+      <key column="race_shikonen"/>
+      <key column="kaisai_kai"/>
+      <key column="kaisai_nichime"/>
+      <key column="race_bango"/>
+    </PrimaryKey>
+  </TableDefinition>
+
+  <ImportSettings>
+    <FileFormat>
+      <Encoding>Shift_JIS</Encoding>
+      <LineDelimiter>CRLF</LineDelimiter>
+      <FixedLength>true</FixedLength>
+    </FileFormat>
+    <FilePattern>
+      <KYI pattern="KYI*.txt" table="jrd_kyi"/>
+      <CYB pattern="CYB*.txt" table="jrd_cyb"/>
+      <JOA pattern="JOA*.txt" table="jrd_joa"/>
+      <SED pattern="SED*.txt" table="jrd_sed"/>
+      <BAC pattern="BAC*.txt" table="jrd_bac"/>
+    </FilePattern>
+    <SourceDirectory>E:\anonymous-keiba-ai-JRA\data\jrdb\raw\JRDB_weekly\</SourceDirectory>
+    <TargetDatabase>
+      <Host>127.0.0.1</Host>
+      <Port>5432</Port>
+      <Database>pckeiba</Database>
+      <Schema>public</Schema>
+      <User>postgres</User>
+    </TargetDatabase>
+  </ImportSettings>
+</DataSettings>

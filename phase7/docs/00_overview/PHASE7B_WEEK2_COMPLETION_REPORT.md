@@ -150,7 +150,7 @@ ORDER BY se.race_id, se.umaban;
 
 ```powershell
 # Phase 7-B フォルダへ移動
-cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b
+cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi
 
 # 統合データセット作成スクリプト実行
 python create_merged_dataset_334cols.py
@@ -287,7 +287,7 @@ feat(phase7-b): Add SQL auto-generation scripts and execution guide for 334-colu
 ### **次に実行すること（PCで）**
 
 ```powershell
-cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b
+cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi
 python create_merged_dataset_334cols.py
 ```
 

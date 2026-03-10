@@ -31,12 +31,12 @@ Get-ChildItem -Directory
 
 # Phase 7-B フォルダ確認
 Get-ChildItem phase7\scripts -Directory
-Get-ChildItem phase7\scripts\phase7b -File
+Get-ChildItem phase7\scripts\phase7b_factor_roi -File
 ```
 
 **期待される出力**:
 ```
-phase7\scripts\phase7b\
+phase7\scripts\phase7b_factor_roi\
   - create_merged_dataset_334cols.py  (8,386バイト)
   - generate_sql_for_334cols.py      (7,588バイト)
 ```
@@ -49,7 +49,7 @@ phase7\scripts\phase7b\
 
 ```powershell
 # Phase 7-B フォルダへ移動
-cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b
+cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi
 
 # 統合データセット作成スクリプト実行（SQL自動生成→データ取得→CSV保存）
 python create_merged_dataset_334cols.py
@@ -66,13 +66,13 @@ python create_merged_dataset_334cols.py
 
 ```powershell
 # Phase 7-B フォルダへ移動
-cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b
+cd E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi
 
 # Step 2-1: SQL自動生成スクリプト実行
 python generate_sql_for_334cols.py
 
 # Step 2-2: 生成されたSQLファイルを確認
-notepad E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b\generated_sql_334cols.sql
+notepad E:\anonymous-keiba-ai-JRA\phase7\scripts\phase7b_factor_roi\generated_sql_334cols.sql
 
 # Step 2-3: 統合データセット作成スクリプト実行
 python create_merged_dataset_334cols.py
