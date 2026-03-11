@@ -164,21 +164,27 @@ def generate_sql_from_csv(csv_path):
     sql_lines.append("FROM jvd_se AS se")
     
     # JRA-VANテーブルのJOIN（テーブルごとに適切な結合キー使用）
-    # レース結合テーブル（複合キー）
-    race_tables = ['jvd_ra', 'jvd_ck', 'jvd_wc', 'jvd_hc', 'jvd_sk']
+    # レース結合テーブル（複合キー: kaisai_nen, kaisai_tsukihi, keibajo_code, race_bango）
+    race_tables = [
+        'jvd_ra',  # レース基本情報
+        'jvd_ck',  # レース成績・距離別成績
+        'jvd_wc',  # ウッドチップ調教タイム
+        'jvd_hc',  # 芝・ダート調教タイム
+        'jvd_sk',  # 血統情報
+        'jvd_hr',  # 払戻金詳細（レース単位）
+        'jvd_h1',  # 払戻金（レース単位）
+        'jvd_h6'   # 三連単払戻（レース単位）
+    ]
     
     # マスタテーブルの結合条件定義
     master_join_conditions = {
         'jvd_um': "se.ketto_toroku_bango = um.ketto_toroku_bango",
-        'jvd_hr': "se.ketto_toroku_bango = hr.ketto_toroku_bango AND se.kaisai_nen = hr.kaisai_nen",
-        'jvd_h1': "se.ketto_toroku_bango = h1.ketto_toroku_bango",
-        'jvd_h6': "se.ketto_toroku_bango = h6.ketto_toroku_bango",
         'jvd_dm': "se.ketto_toroku_bango = dm.ketto_toroku_bango",
         'jvd_bt': "se.ketto_toroku_bango = bt.ketto_toroku_bango AND se.kaisai_nen = bt.kaisai_nen",
         'jvd_ch': "se.chokyoshi_code = ch.chokyoshi_code",
         'jvd_hn': "se.banushi_code = hn.banushi_code",
-        'jvd_br': "se.ketto_toroku_bango = br.ketto_toroku_bango",  # 馬に紐づく想定
-        'jvd_jg': "se.ketto_toroku_bango = jg.ketto_toroku_bango"   # 馬騎手マスタ想定
+        'jvd_br': "se.ketto_toroku_bango = br.ketto_toroku_bango",
+        'jvd_jg': "se.ketto_toroku_bango = jg.ketto_toroku_bango"
     }
     
     for table_full, alias in jvd_tables.items():
