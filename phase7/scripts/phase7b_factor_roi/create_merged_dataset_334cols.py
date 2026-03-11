@@ -208,6 +208,8 @@ def generate_sql_from_csv(csv_path):
     # JRDBテーブルのJOIN（複合キー使用）
     # 注: JRDB テーブルには race_id カラムが存在しない
     # 主キー: keibajo_code, race_shikonen, kaisai_kai, kaisai_nichime, race_bango, umaban (jrd_bac は umaban なし)
+    # race_shikonen は YYMMDD 形式（6桁）、kaisai_tsukihi は DATE 型
+    # 結合条件: kaisai_tsukihi を YYMMDD 形式に変換して比較
     for table_full, alias in jrdb_tables.items():
         if table_full in table_columns:
             if table_full == 'jrd_bac':
@@ -215,7 +217,7 @@ def generate_sql_from_csv(csv_path):
                 sql_lines.append(
                     f"LEFT JOIN {table_full} AS {alias} ON "
                     f"se.keibajo_code = {alias}.keibajo_code AND "
-                    f"se.kaisai_nen = {alias}.race_shikonen AND "
+                    f"TO_CHAR(se.kaisai_tsukihi, 'YYMMDD') = {alias}.race_shikonen AND "
                     f"COALESCE(se.kaisai_kai, '00') = {alias}.kaisai_kai AND "
                     f"COALESCE(se.kaisai_nichime, '00') = {alias}.kaisai_nichime AND "
                     f"se.race_bango = {alias}.race_bango"
@@ -225,16 +227,17 @@ def generate_sql_from_csv(csv_path):
                 sql_lines.append(
                     f"LEFT JOIN {table_full} AS {alias} ON "
                     f"se.keibajo_code = {alias}.keibajo_code AND "
-                    f"se.kaisai_nen = {alias}.race_shikonen AND "
+                    f"TO_CHAR(se.kaisai_tsukihi, 'YYMMDD') = {alias}.race_shikonen AND "
                     f"COALESCE(se.kaisai_kai, '00') = {alias}.kaisai_kai AND "
                     f"COALESCE(se.kaisai_nichime, '00') = {alias}.kaisai_nichime AND "
                     f"se.race_bango = {alias}.race_bango AND "
                     f"se.umaban = {alias}.umaban"
                 )
     
-    # WHERE句（JRDB の race_shikonen で絞り込み）
-    sql_lines.append("WHERE kyi.race_shikonen ~ '^[0-9]+$'")
-    sql_lines.append("  AND CAST(kyi.race_shikonen AS INTEGER) < 260201")
+    # WHERE句（期間絞り込み: 2016-2025年）
+    # JRA-VAN: kaisai_nen は YYYY 形式（4桁）例: '2016' ～ '2025'
+    # JRDB: race_shikonen は YYMMDD 形式（6桁）例: '160101' ～ '259999'
+    sql_lines.append("WHERE se.kaisai_nen >= '2016' AND se.kaisai_nen <= '2025'")
     sql_lines.append("ORDER BY se.kaisai_nen, se.kaisai_tsukihi, se.keibajo_code, se.race_bango, se.umaban;")
     
     sql_text = "\n".join(sql_lines)
