@@ -163,16 +163,41 @@ def generate_sql_from_csv(csv_path):
     # FROM句とJOIN句
     sql_lines.append("FROM jvd_se AS se")
     
-    # JRA-VANテーブルのJOIN（複合キー使用）
+    # JRA-VANテーブルのJOIN（テーブルごとに適切な結合キー使用）
+    # レース結合テーブル（複合キー）
+    race_tables = ['jvd_ra', 'jvd_ck', 'jvd_wc', 'jvd_hc', 'jvd_sk']
+    
+    # マスタテーブルの結合条件定義
+    master_join_conditions = {
+        'jvd_um': "se.ketto_toroku_bango = um.ketto_toroku_bango",
+        'jvd_hr': "se.ketto_toroku_bango = hr.ketto_toroku_bango AND se.kaisai_nen = hr.kaisai_nen",
+        'jvd_h1': "se.ketto_toroku_bango = h1.ketto_toroku_bango",
+        'jvd_h6': "se.ketto_toroku_bango = h6.ketto_toroku_bango",
+        'jvd_dm': "se.ketto_toroku_bango = dm.ketto_toroku_bango",
+        'jvd_bt': "se.ketto_toroku_bango = bt.ketto_toroku_bango AND se.kaisai_nen = bt.kaisai_nen",
+        'jvd_ch': "se.chokyoshi_code = ch.chokyoshi_code",
+        'jvd_hn': "se.banushi_code = hn.banushi_code",
+        'jvd_br': "se.ketto_toroku_bango = br.ketto_toroku_bango",  # 馬に紐づく想定
+        'jvd_jg': "se.ketto_toroku_bango = jg.ketto_toroku_bango"   # 馬騎手マスタ想定
+    }
+    
     for table_full, alias in jvd_tables.items():
         if table_full in table_columns:
-            sql_lines.append(
-                f"LEFT JOIN {table_full} AS {alias} ON "
-                f"se.kaisai_nen = {alias}.kaisai_nen AND "
-                f"se.kaisai_tsukihi = {alias}.kaisai_tsukihi AND "
-                f"se.keibajo_code = {alias}.keibajo_code AND "
-                f"se.race_bango = {alias}.race_bango"
-            )
+            if table_full in race_tables:
+                # レース結合テーブル（複合キー）
+                sql_lines.append(
+                    f"LEFT JOIN {table_full} AS {alias} ON "
+                    f"se.kaisai_nen = {alias}.kaisai_nen AND "
+                    f"se.kaisai_tsukihi = {alias}.kaisai_tsukihi AND "
+                    f"se.keibajo_code = {alias}.keibajo_code AND "
+                    f"se.race_bango = {alias}.race_bango"
+                )
+            elif table_full in master_join_conditions:
+                # マスタテーブル（個別条件）
+                sql_lines.append(
+                    f"LEFT JOIN {table_full} AS {alias} ON "
+                    f"{master_join_conditions[table_full]}"
+                )
     
     # JRDBテーブルのJOIN（race_id使用）
     for table_full, alias in jrdb_tables.items():
