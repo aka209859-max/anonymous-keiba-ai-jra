@@ -111,8 +111,8 @@ def generate_sql_from_csv(csv_path):
     # SQL構築
     sql_lines = []
     sql_lines.append("SELECT")
-    sql_lines.append("    -- 主キー（3列）")
-    sql_lines.append("    se.race_id,")
+    sql_lines.append("    -- 主キー（race_id は複合キーから生成）")
+    sql_lines.append("    (se.kaisai_nen || se.keibajo_code || COALESCE(se.kaisai_kai, '00') || COALESCE(se.kaisai_nichime, '00') || se.race_bango) AS race_id,")
     sql_lines.append("    se.umaban,")
     sql_lines.append("    se.kaisai_tsukihi,")
     sql_lines.append("")
@@ -121,7 +121,7 @@ def generate_sql_from_csv(csv_path):
     sql_lines.append("    -- JRA-VAN: jvd_se")
     for col_info in jvd_se_cols:
         col = col_info['column']
-        if col in ['race_id', 'umaban', 'kaisai_tsukihi']:
+        if col in ['umaban', 'kaisai_tsukihi']:  # race_id は除外（上で生成済み）
             continue
         sql_lines.append(f"    se.{col},")
     sql_lines.append("")
