@@ -82,6 +82,12 @@ def generate_sql_from_csv(csv_path):
     # テーブル定義
     jvd_se_cols = table_columns.get('jvd_se', [])
     
+    # 結合不可能なテーブル（jvd_seに結合キーが存在しない）を除外
+    # - jvd_bt: hanshoku_toroku_bango が jvd_se に存在しない
+    # - jvd_hn: hanshoku_toroku_bango が jvd_se に存在しない
+    # - jvd_br: seisansha_code が jvd_se に存在しない
+    # 血統情報は jvd_sk と jvd_um で十分カバーされている
+    
     jvd_tables = {
         'jvd_ra': 'ra',
         'jvd_ck': 'ck',
@@ -90,12 +96,12 @@ def generate_sql_from_csv(csv_path):
         'jvd_h1': 'h1',
         'jvd_h6': 'h6',
         'jvd_dm': 'dm',
-        'jvd_bt': 'bt',
+        # 'jvd_bt': 'bt',  # ❌ 除外: hanshoku_toroku_bango なし
         'jvd_wc': 'wc',
         'jvd_hc': 'hc',
         'jvd_ch': 'ch',
-        'jvd_hn': 'hn',
-        'jvd_br': 'br',
+        # 'jvd_hn': 'hn',  # ❌ 除外: hanshoku_toroku_bango なし
+        # 'jvd_br': 'br',  # ❌ 除外: seisansha_code なし
         'jvd_jg': 'jg',
         'jvd_sk': 'sk'
     }
