@@ -1,0 +1,43 @@
+
+================================================================================
+Phase 7-A: 全1,939カラム充填率チェック - 実行手順
+================================================================================
+
+【生成されたSQLファイル】
+場所: /home/user/webapp/docs/fillrate_sqls/
+ファイル数: 43個
+
+【実行方法】
+
+方法1: pgAdmin4で個別実行（推奨）
+----------------------------------
+重要なテーブルから順に実行:
+
+1. jvd_se (70カラム) - 最重要
+2. jvd_ck (106カラム) - 重要
+3. jvd_ra (62カラム) - 重要
+4. jvd_um (89カラム) - 重要
+5. jrd_kyi (132カラム) - JRDB最重要
+
+各SQLを実行 → 結果をCSVエクスポート → アップロード
+
+方法2: 簡易サンプリング（推奨・最速）
+----------------------------------
+以下のSQLで各テーブルの代表カラムのみチェック:
+
+SELECT 
+    table_name,
+    column_name,
+    COUNT(*) as total_rows,
+    COUNT(column_name) as filled_rows,
+    ROUND(COUNT(column_name)::NUMERIC / COUNT(*) * 100, 2) as fillrate
+FROM (
+    SELECT 'jvd_se' as table_name, unnest(ARRAY[
+        'umaban', 'kaisai_nen', 'kakutei_chakujun', 'soha_time', 
+        'kishu_code', 'chokyoshi_code', 'futan_juryo', 'bataiju'
+    ]) as column_name
+) cols
+GROUP BY table_name, column_name
+ORDER BY table_name, column_name;
+
+================================================================================

@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (large files)
+data/**/*.csv
+data/**/*.txt
+data/**/*.lzh
+
+# Models (large files)
+models/**/*.txt
+models/**/*.pkl
+models/**/*.bin
+
+# Logs
+logs/**/*.log
+
+# Results (keep structure, ignore content)
+results/**/*.csv
+results/**/*.txt
+!results/.gitkeep
+
+# Config (ignore sensitive info)
+config/db_config.yaml
+config/api_keys.yaml
+
+# Temporary files
+*.tmp
+*.bak
+*.backup

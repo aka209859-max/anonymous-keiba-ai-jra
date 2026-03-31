@@ -1,0 +1,63 @@
+﻿table_name,column_name,total_rows,filled_count,fillrate,table_name_upper,japanese_name,description,code_values
+jrd_bac,baken_hatsubai_flag,110,110,100.0,JRD_BAC,馬券発売フラグ,各券種の発売有無を示すフラグ列,各桁が券種に対応
+jrd_bac,course_kubun,110,110,100.0,JRD_BAC,コース区分,使用コースの区分,A/B/C/D/E
+jrd_bac,data_kubun,110,110,100.0,JRD_BAC,データ区分,速報・確定などのデータ種別,1:速報 2:確定 3:特別登録
+jrd_bac,fukashokin,110,110,100.0,JRD_BAC,付加賞金,レースの付加賞金額,単位:万円
+jrd_bac,grade_code,110,110,100.0,JRD_BAC,グレードコード,レースのグレード・格付け,1:GⅠ 2:GⅡ 3:GⅢ 4:重賞(地) 5:OP 6:Listed A:GⅠ(海外) B:GⅡ(海外) C:GⅢ(海外)
+jrd_bac,hasso_jikoku,110,110,100.0,JRD_BAC,発走時刻,レースの発走時刻,HHmm形式 例:1540=15:40
+jrd_bac,honshokin,110,110,100.0,JRD_BAC,本賞金,レースの本賞金額,単位:万円
+jrd_bac,juryo_shubetsu_code,110,110,100.0,JRD_BAC,重量種別コード,負担重量の決め方,1:馬齢重量 2:定量 3:別定 4:ハンデキャップ
+jrd_bac,jusho_kaiji,110,110,100.0,JRD_BAC,重賞回次,重賞競走の回数,例:第160回
+jrd_bac,kaisai_kai,110,110,100.0,JRD_BAC,開催回,同一競馬場での年内開催回数,第N回
+jrd_bac,kaisai_kubun,110,110,100.0,JRD_BAC,開催区分,開催主催者の区分,1:JRA 2:地方 3:海外
+jrd_bac,kaisai_nichime,110,110,100.0,JRD_BAC,開催日目,開催何日目か,第N日
+jrd_bac,kaisai_tsukihi,110,110,100.0,JRD_BAC,開催月日,競走が行われた月日,MMDD形式 例:0526
+jrd_bac,keibajo_code,110,110,100.0,JRD_BAC,競馬場コード,競馬場の識別コード,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉
+jrd_bac,kyori,110,110,100.0,JRD_BAC,距離,コースの競走距離,単位:m 例:1600
+jrd_bac,kyoso_joken_code,110,110,100.0,JRD_BAC,競走条件コード,レースの適用条件コード,702等の条件コード
+jrd_bac,kyoso_kigo_code,110,110,100.0,JRD_BAC,競走記号コード,競走の適用条件の組み合わせ,複合コード
+jrd_bac,kyoso_shubetsu_code,110,110,100.0,JRD_BAC,競走種別コード,年齢・種別による競走区分,11:2歳 12:3歳 13:3歳以上 14:4歳以上 16:4歳以上牝 20:障害
+jrd_bac,kyosomei,110,110,100.0,JRD_BAC,競走名,レースの正式名称,最大60バイト
+jrd_bac,kyosomei_ryakusho_4,110,110,100.0,JRD_BAC,競走名略称4文字,4文字以内の略称,
+jrd_bac,kyosomei_ryakusho_9,110,110,100.0,JRD_BAC,競走名略称9文字,9文字以内の略称,例:天皇賞(春)
+jrd_bac,race_bango,110,110,100.0,JRD_BAC,レース番号,その日のレース番号,01〜12
+jrd_bac,race_shikonen,110,110,100.0,JRD_BAC,レース施行年,競走が施行された年コード,YYYY形式
+jrd_bac,toroku_tosu,110,110,100.0,JRD_BAC,登録頭数,エントリーした頭数,
+jrd_bac,track_code,110,110,100.0,JRD_BAC,トラックコード,芝・ダート・内外・向きの組み合わせ,10:芝右 11:芝右外 15:芝左 16:芝左外 17:芝直線 20:ダート右 21:ダート右外 25:ダート左 26:ダート左外 51:障害(芝)
+jrd_bac,win5_flag,110,110,100.0,JRD_BAC,WIN5フラグ,WIN5対象レースの有無,0:なし 1:WIN5対象
+jrd_bac,yobi_1,110,110,100.0,JRD_BAC,予備1,予備フィールド1（将来の拡張用）,
+jrd_cyb,kaisai_kai,3081,3081,100.0,JRD_CYB,開催回,同一競馬場での年内開催回数,第N回
+jrd_cyb,kaisai_nichime,3081,3081,100.0,JRD_CYB,開催日目,開催何日目か,第N日
+jrd_cyb,keibajo_code,3081,3081,100.0,JRD_CYB,競馬場コード,競馬場の識別コード,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉
+jrd_cyb,race_bango,3081,3081,100.0,JRD_CYB,レース番号,その日のレース番号,01〜12
+jrd_cyb,race_shikonen,3081,3081,100.0,JRD_CYB,レース施行年,競走が施行された年コード,YYYY形式
+jrd_cyb,umaban,3081,3081,100.0,JRD_CYB,馬番,出走馬の番号,01〜18
+jrd_joa,bamei,4828,4828,100.0,JRD_JOA,馬名,競走馬の正式名称,最大36バイト(全角)
+jrd_joa,kaisai_kai,4828,4828,100.0,JRD_JOA,開催回,同一競馬場での年内開催回数,第N回
+jrd_joa,kaisai_nichime,4828,4828,100.0,JRD_JOA,開催日目,開催何日目か,第N日
+jrd_joa,keibajo_code,4828,4828,100.0,JRD_JOA,競馬場コード,競馬場の識別コード,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉
+jrd_joa,ketto_toroku_bango,4828,4828,100.0,JRD_JOA,血統登録番号,馬の一意識別番号（JRA公式）,10桁数字
+jrd_joa,race_bango,4828,4828,100.0,JRD_JOA,レース番号,その日のレース番号,01〜12
+jrd_joa,race_shikonen,4828,4828,100.0,JRD_JOA,レース施行年,競走が施行された年コード,YYYY形式
+jrd_joa,umaban,4828,4828,100.0,JRD_JOA,馬番,出走馬の番号,01〜18
+jrd_kyi,bamei,4828,4828,100.0,JRD_KYI,馬名,競走馬の正式名称,最大36バイト(全角)
+jrd_kyi,idm,4828,4828,100.0,JRD_KYI,IDM（スピード指数）,JRDBが算出した総合スピード指数,高いほど能力が高い
+jrd_kyi,joho_shisu,4828,4828,100.0,JRD_KYI,情報指数,JRDB独自の情報指数,パドック・調教情報等を総合
+jrd_kyi,kaisai_kai,4828,4828,100.0,JRD_KYI,開催回,同一競馬場での年内開催回数,第N回
+jrd_kyi,kaisai_nichime,4828,4828,100.0,JRD_KYI,開催日目,開催何日目か,第N日
+jrd_kyi,keibajo_code,4828,4828,100.0,JRD_KYI,競馬場コード,競馬場の識別コード,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉
+jrd_kyi,ketto_toroku_bango,4828,4828,100.0,JRD_KYI,血統登録番号,馬の一意識別番号（JRA公式）,10桁数字
+jrd_kyi,kishu_shisu,4828,4828,100.0,JRD_KYI,騎手指数,JRDBの騎手能力指数,騎手の近走成績を数値化
+jrd_kyi,race_bango,4828,4828,100.0,JRD_KYI,レース番号,その日のレース番号,01〜12
+jrd_kyi,race_shikonen,4828,4828,100.0,JRD_KYI,レース施行年,競走が施行された年コード,YYYY形式
+jrd_kyi,umaban,4828,4828,100.0,JRD_KYI,馬番,出走馬の番号,01〜18
+jrd_sed,bamei,3696,3696,100.0,JRD_SED,馬名,競走馬の正式名称,最大36バイト(全角)
+jrd_sed,kaisai_kai,3696,3696,100.0,JRD_SED,開催回,同一競馬場での年内開催回数,第N回
+jrd_sed,kaisai_nen,3696,3696,100.0,JRD_SED,開催年,競走が行われた年（西暦）,例:2024
+jrd_sed,kaisai_nichime,3696,3696,100.0,JRD_SED,開催日目,開催何日目か,第N日
+jrd_sed,kaisai_tsukihi,3696,3696,100.0,JRD_SED,開催月日,競走が行われた月日,MMDD形式 例:0526
+jrd_sed,keibajo_code,3696,3696,100.0,JRD_SED,競馬場コード,競馬場の識別コード,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉
+jrd_sed,ketto_toroku_bango,3696,3696,100.0,JRD_SED,血統登録番号,馬の一意識別番号（JRA公式）,10桁数字
+jrd_sed,race_bango,3696,3696,100.0,JRD_SED,レース番号,その日のレース番号,01〜12
+jrd_sed,race_shikonen,3696,3696,100.0,JRD_SED,レース施行年,競走が施行された年コード,YYYY形式
+jrd_sed,umaban,3696,3696,100.0,JRD_SED,馬番,出走馬の番号,01〜18

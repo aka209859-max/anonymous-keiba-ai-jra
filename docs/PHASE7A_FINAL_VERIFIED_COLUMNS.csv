@@ -1,0 +1,381 @@
+﻿table_name,column_name,japanese_name,description,total_rows,filled_count,fillrate,code_values,remarks,is_existing,priority,selection_reason
+jvd_se,aiteuma_joho_1,aiteuma_joho_1,aiteuma_joho_1フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,aiteuma_joho_2,aiteuma_joho_2,aiteuma_joho_2フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,aiteuma_joho_3,aiteuma_joho_3,aiteuma_joho_3フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_ra,babajotai_code_dirt,babajotai_code_dirt,babajotai_code_dirtフィールド,59851,59851,100,,,True,S,レース基本情報
+jvd_ra,babajotai_code_shiba,babajotai_code_shiba,babajotai_code_shibaフィールド,59851,59851,100,,,True,S,レース基本情報
+jrd_bac,baken_hatsubai_flag,馬券発売フラグ,各券種の発売有無を示すフラグ列,110,110,100,各桁が券種に対応,,False,B,JRDB レース基本
+jvd_se,bamei,馬名,競走馬の正式名称,739040,739040,100,最大36バイト(全角),,False,S,レース成績（最重要）
+jvd_ck,bamei,馬名,競走馬の正式名称,483981,483981,100,最大36バイト(全角),,False,A,レース詳細情報
+jrd_kyi,bamei,馬名,競走馬の正式名称,4828,4828,100,最大36バイト(全角),,False,B,JRDB 競走馬指数
+jrd_sed,bamei,馬名,競走馬の正式名称,3696,3696,100,最大36バイト(全角),,False,B,JRDB 成績
+jrd_joa,bamei,馬名,競走馬の正式名称,4828,4828,100,最大36バイト(全角),,False,B,JRDB 騎手
+jvd_um,bamei,馬名,競走馬の正式名称,211788,211788,100,最大36バイト(全角),,False,C,馬マスタ
+jvd_um,bamei_eur,bamei_eur,bamei_eurフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_um,bamei_hankaku_kana,bamei_hankaku_kana,bamei_hankaku_kanaフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_se,banushi_code,馬主コード,馬主の固有コード,739040,739040,100,5桁英数字,,False,S,レース成績（最重要）
+jvd_ck,banushi_code,馬主コード,馬主の固有コード,483981,483981,100,5桁英数字,,False,A,レース詳細情報
+jvd_um,banushi_code,馬主コード,馬主の固有コード,211788,211788,100,5桁英数字,,False,C,馬マスタ
+jvd_se,banushimei,馬主名,馬主の氏名または法人名,739040,739040,100,最大64バイト,,False,S,レース成績（最重要）
+jvd_ck,banushimei,馬主名,馬主の氏名または法人名,483981,483981,100,最大64バイト,,False,A,レース詳細情報
+jvd_um,banushimei,馬主名,馬主の氏名または法人名,211788,211788,100,最大64バイト,,False,C,馬マスタ
+jvd_ck,banushimei_hojinkaku,banushimei_hojinkaku,banushimei_hojinkakuフィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_se,barei,馬齢,競走時の馬の年齢,739040,739040,100,単位:歳,,True,S,レース成績（最重要）
+jvd_se,bataiju,馬体重,計量時の馬体重,739040,739040,100,単位:kg,,False,S,レース成績（最重要）
+jvd_se,blinker_shiyo_kubun,ブリンカー使用区分,ブリンカー装着の有無,739040,739040,100,0:なし 1:あり,,True,S,レース成績（最重要）
+jvd_se,chakusa_code_1,chakusa_code_1,chakusa_code_1フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,chakusa_code_2,chakusa_code_2,chakusa_code_2フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,chakusa_code_3,chakusa_code_3,chakusa_code_3フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,chokyoshi_code,調教師コード,調教師の固有コード（JRA公式）,739040,739040,100,5桁数字,,False,S,レース成績（最重要）
+jvd_ck,chokyoshi_code,調教師コード,調教師の固有コード（JRA公式）,483981,483981,100,5桁数字,,False,A,レース詳細情報
+jvd_um,chokyoshi_code,調教師コード,調教師の固有コード（JRA公式）,211788,211788,100,5桁数字,,False,C,馬マスタ
+jvd_ck,chokyoshimei,chokyoshimei,chokyoshimeiフィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_se,chokyoshimei_ryakusho,chokyoshimei_ryakusho,chokyoshimei_ryakushoフィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_um,chokyoshimei_ryakusho,chokyoshimei_ryakusho,chokyoshimei_ryakushoフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_ck,chuo_gokei,chuo_gokei,chuo_gokeiフィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_um,chuo_gokei,chuo_gokei,chuo_gokeiフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_se,corner_1,corner_1,corner_1フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,corner_2,corner_2,corner_2フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,corner_3,corner_3,corner_3フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_se,corner_4,corner_4,corner_4フィールド,739040,739040,100,,,False,S,レース成績（最重要）
+jvd_ra,corner_tsuka_juni_1,corner_tsuka_juni_1,corner_tsuka_juni_1フィールド,59851,59851,100,,,False,S,レース基本情報
+jvd_ra,corner_tsuka_juni_2,corner_tsuka_juni_2,corner_tsuka_juni_2フィールド,59851,59851,100,,,False,S,レース基本情報
+jvd_ra,corner_tsuka_juni_3,corner_tsuka_juni_3,corner_tsuka_juni_3フィールド,59851,59851,100,,,False,S,レース基本情報
+jvd_ra,corner_tsuka_juni_4,corner_tsuka_juni_4,corner_tsuka_juni_4フィールド,59851,59851,100,,,False,S,レース基本情報
+jvd_ra,course_kubun,コース区分,使用コースの区分,59851,59851,100,A/B/C/D/E,,False,S,レース基本情報
+jrd_bac,course_kubun,コース区分,使用コースの区分,110,110,100,A/B/C/D/E,,False,B,JRDB レース基本
+jvd_ra,course_kubun_henkomae,course_kubun_henkomae,course_kubun_henkomaeフィールド,59851,59851,100,,,False,S,レース基本情報
+jvd_se,data_kubun,データ区分,速報・確定などのデータ種別,739040,739040,100,1:速報 2:確定 3:特別登録,,False,S,レース成績（最重要）
+jvd_ra,data_kubun,データ区分,速報・確定などのデータ種別,59851,59851,100,1:速報 2:確定 3:特別登録,,False,S,レース基本情報
+jvd_hr,data_kubun,データ区分,速報・確定などのデータ種別,34548,34548,100,1:速報 2:確定 3:特別登録,,False,S,血統情報
+jvd_ck,data_kubun,データ区分,速報・確定などのデータ種別,483981,483981,100,1:速報 2:確定 3:特別登録,,False,A,レース詳細情報
+jvd_dm,data_kubun,データ区分,速報・確定などのデータ種別,34548,34548,100,1:速報 2:確定 3:特別登録,,False,A,馬体重
+jrd_bac,data_kubun,データ区分,速報・確定などのデータ種別,110,110,100,1:速報 2:確定 3:特別登録,,False,B,JRDB レース基本
+jvd_um,data_kubun,データ区分,速報・確定などのデータ種別,211788,211788,100,1:速報 2:確定 3:特別登録,,False,C,馬マスタ
+jvd_sk,data_kubun,データ区分,速報・確定などのデータ種別,427045,427045,100,1:速報 2:確定 3:特別登録,,False,C,障害成績
+jvd_dm,data_sakusei_jifun,data_sakusei_jifun,data_sakusei_jifunフィールド,34548,34548,100,,,False,A,馬体重
+jvd_ra,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,59851,59851,100,YYYYMMDD形式,,False,S,レース基本情報
+jvd_hr,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,34548,34548,100,YYYYMMDD形式,,False,S,血統情報
+jvd_ck,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,483981,483981,100,YYYYMMDD形式,,False,A,レース詳細情報
+jvd_dm,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,34548,34548,100,YYYYMMDD形式,,False,A,馬体重
+jvd_um,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,211788,211788,100,YYYYMMDD形式,,False,C,馬マスタ
+jvd_sk,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,427045,427045,100,YYYYMMDD形式,,False,C,障害成績
+jvd_ck,dirt_1200_ika,dirt_1200_ika,dirt_1200_ikaフィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_1201_1400,dirt_1201_1400,dirt_1201_1400フィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_1401_1600,dirt_1401_1600,dirt_1401_1600フィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_1601_1800,dirt_1601_1800,dirt_1601_1800フィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_1801_2000,dirt_1801_2000,dirt_1801_2000フィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_2001_2200,dirt_2001_2200,dirt_2001_2200フィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_2201_2400,dirt_2201_2400,dirt_2201_2400フィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_2401_2800,dirt_2401_2800,dirt_2401_2800フィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_2801_ijo,dirt_2801_ijo,dirt_2801_ijoフィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_ck,dirt_choku,dirt_choku,dirt_chokuフィールド,483981,483981,100,,,False,A,レース詳細情報
+jvd_um,dirt_choku,dirt_choku,dirt_chokuフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_um,dirt_furyo,dirt_furyo,dirt_furyoフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_um,dirt_hidari,dirt_hidari,dirt_hidariフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_um,dirt_long,dirt_long,dirt_longフィールド,211788,211788,100,,,False,C,馬マスタ
+jvd_ra,fukashokin,付加賞金,レースの付加賞金額,59851,59851,100,単位:万円,,False,S,レース基本情報
+jrd_bac,fukashokin,付加賞金,レースの付加賞金額,110,110,100,単位:万円,,False,B,JRDB レース基本
+jvd_ra,fukashokin_henkomae,fukashokin_henkomae,fukashokin_henkomaeフィールド,59851,59851,100,,,False,S,レース基本情報
+jvd_ra,grade_code,グレードコード,レースのグレード・格付け,59851,59851,100,1:GⅠ 2:GⅡ 3:GⅢ 4:重賞(地) 5:OP 6:Listed A:GⅠ(海外) B:GⅡ(海外) C:GⅢ(海外),,True,S,レース基本情報
+jrd_bac,grade_code,グレードコード,レースのグレード・格付け,110,110,100,1:GⅠ 2:GⅡ 3:GⅢ 4:重賞(地) 5:OP 6:Listed A:GⅠ(海外) B:GⅡ(海外) C:GⅢ(海外),,True,B,JRDB レース基本
+jvd_ra,grade_code_henkomae,grade_code_henkomae,grade_code_henkomaeフィールド,59851,59851,100,,,False,S,レース基本情報
+jvd_hr,haraimodoshi_fukusho_1a,haraimodoshi_fukusho_1a,haraimodoshi_fukusho_1aフィールド,34548,34548,100,,,False,S,血統情報
+jvd_hr,haraimodoshi_fukusho_1b,haraimodoshi_fukusho_1b,haraimodoshi_fukusho_1bフィールド,34548,34548,100,,,False,S,血統情報
+jvd_hr,haraimodoshi_fukusho_1c,haraimodoshi_fukusho_1c,haraimodoshi_fukusho_1cフィールド,34548,34548,100,,,False,S,血統情報
+jvd_hr,haraimodoshi_fukusho_2a,haraimodoshi_fukusho_2a,haraimodoshi_fukusho_2aフィールド,34548,34548,100,,,False,S,血統情報
+jvd_hr,haraimodoshi_fukusho_2b,haraimodoshi_fukusho_2b,haraimodoshi_fukusho_2bフィールド,34548,34548,100,,,False,S,血統情報
+jvd_hr,haraimodoshi_fukusho_2c,haraimodoshi_fukusho_2c,haraimodoshi_fukusho_2cフィールド,34548,34548,100,,,False,S,血統情報
+jvd_hr,haraimodoshi_fukusho_3a,haraimodoshi_fukusho_3a,haraimodoshi_fukusho_3aフィールド,34548,34548,100,,,False,S,血統情報
+jvd_hr,haraimodoshi_fukusho_3b,haraimodoshi_fukusho_3b,haraimodoshi_fukusho_3bフィールド,34548,34548,100,,,False,S,血統情報
+jvd_ra,hasso_jikoku,発走時刻,レースの発走時刻,59851,59851,100,HHmm形式 例:1540=15:40,,True,S,レース基本情報
+jrd_bac,hasso_jikoku,発走時刻,レースの発走時刻,110,110,100,HHmm形式 例:1540=15:40,,True,B,JRDB レース基本
+jvd_sk,hinshu_code,品種コード,馬の品種,427045,427045,100,01:サラブレッド 02:アングロアラブ 03:アラブ,,False,C,障害成績
+jrd_bac,honshokin,本賞金,レースの本賞金額,110,110,100,単位:万円,,False,B,JRDB レース基本
+jrd_kyi,idm,IDM（スピード指数）,JRDBが算出した総合スピード指数,4828,4828,100,高いほど能力が高い,,True,B,JRDB 競走馬指数
+jrd_kyi,joho_shisu,情報指数,JRDB独自の情報指数,4828,4828,100,パドック・調教情報等を総合,,True,B,JRDB 競走馬指数
+jvd_se,kaisai_kai,開催回,同一競馬場での年内開催回数,739040,739040,100,第N回,,True,S,レース成績（最重要）
+jvd_ra,kaisai_kai,開催回,同一競馬場での年内開催回数,59851,59851,100,第N回,,True,S,レース基本情報
+jvd_hr,kaisai_kai,開催回,同一競馬場での年内開催回数,34548,34548,100,第N回,,True,S,血統情報
+jvd_ck,kaisai_kai,開催回,同一競馬場での年内開催回数,483981,483981,100,第N回,,True,A,レース詳細情報
+jvd_dm,kaisai_kai,開催回,同一競馬場での年内開催回数,34548,34548,100,第N回,,True,A,馬体重
+jrd_kyi,kaisai_kai,開催回,同一競馬場での年内開催回数,4828,4828,100,第N回,,True,B,JRDB 競走馬指数
+jrd_sed,kaisai_kai,開催回,同一競馬場での年内開催回数,3696,3696,100,第N回,,True,B,JRDB 成績
+jrd_bac,kaisai_kai,開催回,同一競馬場での年内開催回数,110,110,100,第N回,,True,B,JRDB レース基本
+jrd_cyb,kaisai_kai,開催回,同一競馬場での年内開催回数,3081,3081,100,第N回,,True,B,JRDB 調教
+jrd_joa,kaisai_kai,開催回,同一競馬場での年内開催回数,4828,4828,100,第N回,,True,B,JRDB 騎手
+jvd_jg,kaisai_kai,開催回,同一競馬場での年内開催回数,808218,808218,100,第N回,,True,C,騎手マスタ
+jvd_se,kaisai_nen,開催年,競走が行われた年（西暦）,739040,739040,100,例:2024,,True,S,レース成績（最重要）
+jvd_ra,kaisai_nen,開催年,競走が行われた年（西暦）,59851,59851,100,例:2024,,True,S,レース基本情報
+jvd_hr,kaisai_nen,開催年,競走が行われた年（西暦）,34548,34548,100,例:2024,,True,S,血統情報
+jvd_ck,kaisai_nen,開催年,競走が行われた年（西暦）,483981,483981,100,例:2024,,True,A,レース詳細情報
+jvd_dm,kaisai_nen,開催年,競走が行われた年（西暦）,34548,34548,100,例:2024,,True,A,馬体重
+jrd_sed,kaisai_nen,開催年,競走が行われた年（西暦）,3696,3696,100,例:2024,,True,B,JRDB 成績
+jvd_jg,kaisai_nen,開催年,競走が行われた年（西暦）,808218,808218,100,例:2024,,True,C,騎手マスタ
+jvd_se,kaisai_nichime,開催日目,開催何日目か,739040,739040,100,第N日,,True,S,レース成績（最重要）
+jvd_ra,kaisai_nichime,開催日目,開催何日目か,59851,59851,100,第N日,,True,S,レース基本情報
+jvd_hr,kaisai_nichime,開催日目,開催何日目か,34548,34548,100,第N日,,True,S,血統情報
+jvd_ck,kaisai_nichime,開催日目,開催何日目か,483981,483981,100,第N日,,True,A,レース詳細情報
+jvd_dm,kaisai_nichime,開催日目,開催何日目か,34548,34548,100,第N日,,True,A,馬体重
+jrd_kyi,kaisai_nichime,開催日目,開催何日目か,4828,4828,100,第N日,,True,B,JRDB 競走馬指数
+jrd_sed,kaisai_nichime,開催日目,開催何日目か,3696,3696,100,第N日,,True,B,JRDB 成績
+jrd_bac,kaisai_nichime,開催日目,開催何日目か,110,110,100,第N日,,True,B,JRDB レース基本
+jrd_cyb,kaisai_nichime,開催日目,開催何日目か,3081,3081,100,第N日,,True,B,JRDB 調教
+jrd_joa,kaisai_nichime,開催日目,開催何日目か,4828,4828,100,第N日,,True,B,JRDB 騎手
+jvd_jg,kaisai_nichime,開催日目,開催何日目か,808218,808218,100,第N日,,True,C,騎手マスタ
+jvd_se,kaisai_tsukihi,開催月日,競走が行われた月日,739040,739040,100,MMDD形式 例:0526,,True,S,レース成績（最重要）
+jvd_ra,kaisai_tsukihi,開催月日,競走が行われた月日,59851,59851,100,MMDD形式 例:0526,,True,S,レース基本情報
+jvd_hr,kaisai_tsukihi,開催月日,競走が行われた月日,34548,34548,100,MMDD形式 例:0526,,True,S,血統情報
+jvd_ck,kaisai_tsukihi,開催月日,競走が行われた月日,483981,483981,100,MMDD形式 例:0526,,True,A,レース詳細情報
+jvd_dm,kaisai_tsukihi,開催月日,競走が行われた月日,34548,34548,100,MMDD形式 例:0526,,True,A,馬体重
+jrd_sed,kaisai_tsukihi,開催月日,競走が行われた月日,3696,3696,100,MMDD形式 例:0526,,True,B,JRDB 成績
+jrd_bac,kaisai_tsukihi,開催月日,競走が行われた月日,110,110,100,MMDD形式 例:0526,,True,B,JRDB レース基本
+jvd_jg,kaisai_tsukihi,開催月日,競走が行われた月日,808218,808218,100,MMDD形式 例:0526,,True,C,騎手マスタ
+jvd_se,keibajo_code,競馬場コード,競馬場の識別コード,739040,739040,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,S,レース成績（最重要）
+jvd_ra,keibajo_code,競馬場コード,競馬場の識別コード,59851,59851,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,S,レース基本情報
+jvd_hr,keibajo_code,競馬場コード,競馬場の識別コード,34548,34548,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,S,血統情報
+jvd_ck,keibajo_code,競馬場コード,競馬場の識別コード,483981,483981,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,A,レース詳細情報
+jvd_dm,keibajo_code,競馬場コード,競馬場の識別コード,34548,34548,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,A,馬体重
+jrd_kyi,keibajo_code,競馬場コード,競馬場の識別コード,4828,4828,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,B,JRDB 競走馬指数
+jrd_sed,keibajo_code,競馬場コード,競馬場の識別コード,3696,3696,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,B,JRDB 成績
+jrd_bac,keibajo_code,競馬場コード,競馬場の識別コード,110,110,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,B,JRDB レース基本
+jrd_cyb,keibajo_code,競馬場コード,競馬場の識別コード,3081,3081,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,B,JRDB 調教
+jrd_joa,keibajo_code,競馬場コード,競馬場の識別コード,4828,4828,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,B,JRDB 騎手
+jvd_jg,keibajo_code,競馬場コード,競馬場の識別コード,808218,808218,100,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,C,騎手マスタ
+jvd_sk,ketto_joho_01a,ketto_joho_01a,ketto_joho_01aフィールド,427045,427045,100,,,False,C,障害成績
+jrd_kyi,ketto_toroku_bango,血統登録番号,馬の一意識別番号（JRA公式）,4828,4828,100,10桁数字,,False,B,JRDB 競走馬指数
+jrd_sed,ketto_toroku_bango,血統登録番号,馬の一意識別番号（JRA公式）,3696,3696,100,10桁数字,,False,B,JRDB 成績
+jrd_joa,ketto_toroku_bango,血統登録番号,馬の一意識別番号（JRA公式）,4828,4828,100,10桁数字,,False,B,JRDB 騎手
+jrd_kyi,kishu_shisu,騎手指数,JRDBの騎手能力指数,4828,4828,100,騎手の近走成績を数値化,,True,B,JRDB 競走馬指数
+jvd_se,kishumei_ryakusho,kishumei_ryakusho,kishumei_ryakushoフィールド,739040,739040,100,,,True,S,レース成績（最重要）
+jvd_ra,kyori,距離,コースの競走距離,59851,59851,100,単位:m 例:1600,,True,S,レース基本情報
+jrd_bac,kyori,距離,コースの競走距離,110,110,100,単位:m 例:1600,,True,B,JRDB レース基本
+jvd_dm,mining_yoso_01,mining_yoso_01,mining_yoso_01フィールド,34548,34548,100,,,False,A,馬体重
+jvd_dm,mining_yoso_02,mining_yoso_02,mining_yoso_02フィールド,34548,34548,100,,,False,A,馬体重
+jvd_dm,mining_yoso_03,mining_yoso_03,mining_yoso_03フィールド,34548,34548,100,,,False,A,馬体重
+jvd_dm,mining_yoso_04,mining_yoso_04,mining_yoso_04フィールド,34548,34548,100,,,False,A,馬体重
+jvd_dm,mining_yoso_05,mining_yoso_05,mining_yoso_05フィールド,34548,34548,100,,,False,A,馬体重
+jvd_dm,mining_yoso_06,mining_yoso_06,mining_yoso_06フィールド,34548,34548,100,,,False,A,馬体重
+jvd_se,race_bango,レース番号,その日のレース番号,739040,739040,100,01〜12,,True,S,レース成績（最重要）
+jvd_ra,race_bango,レース番号,その日のレース番号,59851,59851,100,01〜12,,True,S,レース基本情報
+jvd_hr,race_bango,レース番号,その日のレース番号,34548,34548,100,01〜12,,True,S,血統情報
+jvd_ck,race_bango,レース番号,その日のレース番号,483981,483981,100,01〜12,,True,A,レース詳細情報
+jvd_dm,race_bango,レース番号,その日のレース番号,34548,34548,100,01〜12,,True,A,馬体重
+jrd_kyi,race_bango,レース番号,その日のレース番号,4828,4828,100,01〜12,,True,B,JRDB 競走馬指数
+jrd_sed,race_bango,レース番号,その日のレース番号,3696,3696,100,01〜12,,True,B,JRDB 成績
+jrd_bac,race_bango,レース番号,その日のレース番号,110,110,100,01〜12,,True,B,JRDB レース基本
+jrd_cyb,race_bango,レース番号,その日のレース番号,3081,3081,100,01〜12,,True,B,JRDB 調教
+jrd_joa,race_bango,レース番号,その日のレース番号,4828,4828,100,01〜12,,True,B,JRDB 騎手
+jvd_jg,race_bango,レース番号,その日のレース番号,808218,808218,100,01〜12,,True,C,騎手マスタ
+jrd_kyi,race_shikonen,レース施行年,競走が施行された年コード,4828,4828,100,YYYY形式,,True,B,JRDB 競走馬指数
+jrd_sed,race_shikonen,レース施行年,競走が施行された年コード,3696,3696,100,YYYY形式,,True,B,JRDB 成績
+jrd_bac,race_shikonen,レース施行年,競走が施行された年コード,110,110,100,YYYY形式,,True,B,JRDB レース基本
+jrd_cyb,race_shikonen,レース施行年,競走が施行された年コード,3081,3081,100,YYYY形式,,True,B,JRDB 調教
+jrd_joa,race_shikonen,レース施行年,競走が施行された年コード,4828,4828,100,YYYY形式,,True,B,JRDB 騎手
+jvd_se,seibetsu_code,性別コード,馬の性別,739040,739040,100,1:牡 2:牝 3:騸,,True,S,レース成績（最重要）
+jvd_um,seibetsu_code,性別コード,馬の性別,211788,211788,100,1:牡 2:牝 3:騸,,True,C,馬マスタ
+jvd_sk,seibetsu_code,性別コード,馬の性別,427045,427045,100,1:牡 2:牝 3:騸,,True,C,障害成績
+jvd_ra,shusso_tosu,出走頭数,実際に出走した頭数,59851,59851,100,,,True,S,レース基本情報
+jvd_hr,shusso_tosu,出走頭数,実際に出走した頭数,34548,34548,100,,,True,S,血統情報
+jvd_ra,tenko_code,天候コード,レース当日の天候,59851,59851,100,1:晴 2:曇 3:雨 4:小雨 5:雪 6:小雪,,True,S,レース基本情報
+jvd_ra,track_code,トラックコード,芝・ダート・内外・向きの組み合わせ,59851,59851,100,10:芝右 11:芝右外 15:芝左 16:芝左外 17:芝直線 20:ダート右 21:ダート右外 25:ダート左 26:ダート左外 51:障害(芝),,True,S,レース基本情報
+jrd_bac,track_code,トラックコード,芝・ダート・内外・向きの組み合わせ,110,110,100,10:芝右 11:芝右外 15:芝左 16:芝左外 17:芝直線 20:ダート右 21:ダート右外 25:ダート左 26:ダート左外 51:障害(芝),,True,B,JRDB レース基本
+jvd_se,umaban,馬番,出走馬の番号,739040,739040,100,01〜18,,True,S,レース成績（最重要）
+jrd_kyi,umaban,馬番,出走馬の番号,4828,4828,100,01〜18,,True,B,JRDB 競走馬指数
+jrd_sed,umaban,馬番,出走馬の番号,3696,3696,100,01〜18,,True,B,JRDB 成績
+jrd_cyb,umaban,馬番,出走馬の番号,3081,3081,100,01〜18,,True,B,JRDB 調教
+jrd_joa,umaban,馬番,出走馬の番号,4828,4828,100,01〜18,,True,B,JRDB 騎手
+jvd_se,wakuban,枠番,枠組番号,739040,739040,100,1〜8,,True,S,レース成績（最重要）
+jvd_se,zogen_sa,増減差,前走比の増減量,739040,739040,100,単位:kg,,True,S,レース成績（最重要）
+jrd_kyi,agari_shisu,上がり指数,終盤（上がり3F）の速さ指数,4828,3152,65.29,,,,,
+jrd_kyi,agari_shisu_juni,agari_shisu_juni,agari_shisu_juniフィールド,4828,3152,65.29,,,,,
+jrd_sed,babasa,babasa,babasaフィールド,3696,2464,66.67,,,,,
+jrd_kyi,blinker_shiyo_kubun,ブリンカー使用区分,ブリンカー装着の有無,4828,3152,65.29,,,,,
+jrd_cyb,chokyo_comment,調教コメント,調教師・厩務員のコメント,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_dirt,調教コースダートタイム,ダートコースでの調教タイム,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_hanro,調教コース坂路タイム,坂路コースでの調教タイム,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_polytrack,調教コースポリトラックタイム,ポリトラックコースの調教タイム,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_pool,調教コースプール,プールでの調教記録,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_shiba,調教コース芝タイム,芝コースでの調教タイム,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_shogai,調教コース障害タイム,障害コースでの調教タイム,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_shubetsu,調教コース種別,主に使用した調教コースの種別,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_corse_wood,調教コースウッドタイム,ウッドチップコースでの調教タイム,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_hyoka,調教評価,調教内容の総合評価,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_juten,調教重点,調教の重点項目,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_kyori,調教距離区分,調教距離の区分,3081,2054,66.67,,,,,
+jrd_cyb,chokyo_ryo_hyoka,調教量評価,調教量の評価,3081,2054,66.67,,,,,
+jrd_kyi,chokyo_shisu,調教指数,調教内容の評価指数,4828,3152,65.29,,,,,
+jrd_kyi,chokyo_yajirushi_code,chokyoyajirushiコード,chokyoyajirushiの識別コード,4828,3152,65.29,,,,,
+jrd_kyi,chokyoshi_code,調教師コード,調教師の固有コード（JRA公式）,4828,3152,65.29,,,,,
+jvd_ch,chokyoshi_code,調教師コード,調教師の固有コード（JRA公式）,1472,1472,100.0,,,,,
+jrd_joa,cid,CID（コース適性指数）,JRDBのコース・距離適性指数,4828,3152,65.29,,,,,
+jrd_kyi,class_code,classコード,classの識別コード,4828,3152,65.29,,,,,
+jrd_sed,corner_1,corner_1,corner_1フィールド,3696,2464,66.67,,,,,
+jrd_sed,corner_2,corner_2,corner_2フィールド,3696,2464,66.67,,,,,
+jrd_sed,corner_3,corner_3,corner_3フィールド,3696,2464,66.67,,,,,
+jrd_sed,corner_4,corner_4,corner_4フィールド,3696,2464,66.67,,,,,
+jvd_ra,corner_tsuka_juni_1,corner_tsuka_juni_1,corner_tsuka_juni_1フィールド,59851,59851,100.0,,,,,
+jvd_ra,corner_tsuka_juni_2,corner_tsuka_juni_2,corner_tsuka_juni_2フィールド,59851,59851,100.0,,,,,
+jvd_ra,corner_tsuka_juni_3,corner_tsuka_juni_3,corner_tsuka_juni_3フィールド,59851,59851,100.0,,,,,
+jvd_ra,corner_tsuka_juni_4,corner_tsuka_juni_4,corner_tsuka_juni_4フィールド,59851,59851,100.0,,,,,
+jrd_sed,course_dori_code,coursedoriコード,coursedoriの識別コード,3696,2464,66.67,,,,,
+jvd_h1,data_kubun,データ区分,速報・確定などのデータ種別,34516,34516,100.0,1:速報 2:確定 3:特別登録,,False,A,払戻オッズ（単勝・複勝）
+jvd_h6,data_kubun,データ区分,速報・確定などのデータ種別,34516,34516,100.0,1:速報 2:確定 3:特別登録,,False,A,払戻オッズ（3連単）
+jvd_h1,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,34516,34516,100.0,YYYYMMDD形式,,False,A,払戻オッズ（単勝・複勝）
+jvd_h6,data_sakusei_nengappi,データ作成年月日,JRA-VANがデータを作成した日付,34516,34516,100.0,YYYYMMDD形式,,False,A,払戻オッズ（3連単）
+jrd_sed,deokure,deokure,deokureフィールド,3696,2464,66.67,,,,,
+jrd_kyi,dochu_juni,dochu_juni,dochu_juniフィールド,4828,3152,65.29,,,,,
+jrd_kyi,dochu_sa,dochu_sa,dochu_saフィールド,4828,3152,65.29,,,,,
+jrd_kyi,dochu_uchisoto,dochu_uchisoto,dochu_uchisotoフィールド,4828,3152,65.29,,,,,
+jrd_joa,em,em,emフィールド,4828,3152,65.29,,,,,
+jvd_h1,fukusho_chakubarai_key,fukusho_chakubarai_key,fukusho_chakubarai_keyフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jrd_sed,furi,furi,furiフィールド,3696,2464,66.67,,,,,
+jrd_sed,furi_1,furi_1,furi_1フィールド,3696,2464,66.67,,,,,
+jrd_sed,furi_2,furi_2,furi_2フィールド,3696,2464,66.67,,,,,
+jrd_sed,furi_3,furi_3,furi_3フィールド,3696,2464,66.67,,,,,
+jrd_kyi,futan_juryo,負担重量,斤量（騎手+装具の合計）,4828,3152,65.29,,,,,
+jrd_kyi,gekiso_juni,gekiso_juni,gekiso_juniフィールド,4828,3152,65.29,,,,,
+jrd_kyi,gekiso_shisu,gekiso指数,JRDB gekiso指数,4828,3152,65.29,,,,,
+jrd_kyi,gekiso_type,gekiso_type,gekiso_typeフィールド,4828,3152,65.29,,,,,
+jrd_kyi,goal_juni,goal_juni,goal_juniフィールド,4828,3152,65.29,,,,,
+jrd_kyi,goal_sa,goal_sa,goal_saフィールド,4828,3152,65.29,,,,,
+jrd_kyi,goal_uchisoto,goal_uchisoto,goal_uchisotoフィールド,4828,3152,65.29,,,,,
+jvd_h1,hatsubai_flag_fukusho,hatsubai_flag_fukusho,hatsubai_flag_fukushoフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,hatsubai_flag_sanrenpuku,hatsubai_flag_sanrenpuku,hatsubai_flag_sanrenpukuフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h6,hatsubai_flag_sanrentan,hatsubai_flag_sanrentan,hatsubai_flag_sanrentanフィールド,34516,34516,100.0,,,False,A,払戻オッズ（3連単）
+jvd_h1,hatsubai_flag_tansho,hatsubai_flag_tansho,hatsubai_flag_tanshoフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,hatsubai_flag_umaren,hatsubai_flag_umaren,hatsubai_flag_umarenフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,hatsubai_flag_umatan,hatsubai_flag_umatan,hatsubai_flag_umatanフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,hatsubai_flag_wakuren,hatsubai_flag_wakuren,hatsubai_flag_wakurenフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,hatsubai_flag_wide,hatsubai_flag_wide,hatsubai_flag_wideフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,henkan_dowaku_joho,henkan_dowaku_joho,henkan_dowaku_johoフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,henkan_hyosu_gokei_fukusho,henkan_hyosu_gokei_fukusho,henkan_hyosu_gokei_fukushoフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_h1,henkan_hyosu_gokei_sanrenpuku,henkan_hyosu_gokei_sanrenpuku,henkan_hyosu_gokei_sanrenpukuフィールド,34516,34516,100.0,,,False,A,払戻オッズ（単勝・複勝）
+jvd_hn,hinshu_code,品種コード,馬の品種,161003,161003,100.0,,,,,
+jrd_kyi,hizume_code,hizumeコード,hizumeの識別コード,4828,3152,65.29,,,,,
+jrd_kyi,hobokusaki,hobokusaki,hobokusakiフィールド,4828,3152,65.29,,,,,
+jrd_kyi,hobokusaki_rank,hobokusaki_rank,hobokusaki_rankフィールド,4828,3152,65.29,,,,,
+jrd_kyi,ichi_shisu,ichi指数,JRDB ichi指数,4828,3152,65.29,,,,,
+jrd_kyi,ichi_shisu_juni,ichi_shisu_juni,ichi_shisu_juniフィールド,4828,3152,65.29,,,,,
+jrd_sed,ichidori,ichidori,ichidoriフィールド,3696,2464,66.67,,,,,
+jrd_kyi,idm,IDM（スピード指数）,JRDBが算出した総合スピード指数,4828,4828,100.0,,,,,
+jrd_sed,idm,IDM（スピード指数）,JRDBが算出した総合スピード指数,3696,2464,66.67,,,,,
+jrd_kyi,joho_shisu,情報指数,JRDB独自の情報指数,4828,4828,100.0,,,,,
+jrd_kyi,joshodo_code,joshodoコード,joshodoの識別コード,4828,3152,65.29,,,,,
+jrd_sed,joshodo_code,joshodoコード,joshodoの識別コード,3696,2464,66.67,,,,,
+jvd_h1,kaisai_kai,開催回,同一競馬場での年内開催回数,34516,34516,100.0,第N回,,True,A,払戻オッズ（単勝・複勝）
+jvd_h6,kaisai_kai,開催回,同一競馬場での年内開催回数,34516,34516,100.0,第N回,,True,A,払戻オッズ（3連単）
+jvd_h1,kaisai_nen,開催年,競走が行われた年（西暦）,34516,34516,100.0,例:2024,,True,A,払戻オッズ（単勝・複勝）
+jvd_h6,kaisai_nen,開催年,競走が行われた年（西暦）,34516,34516,100.0,例:2024,,True,A,払戻オッズ（3連単）
+jvd_h1,kaisai_nichime,開催日目,開催何日目か,34516,34516,100.0,第N日,,True,A,払戻オッズ（単勝・複勝）
+jvd_h6,kaisai_nichime,開催日目,開催何日目か,34516,34516,100.0,第N日,,True,A,払戻オッズ（3連単）
+jvd_h1,kaisai_tsukihi,開催月日,競走が行われた月日,34516,34516,100.0,MMDD形式 例:0526,,True,A,払戻オッズ（単勝・複勝）
+jvd_h6,kaisai_tsukihi,開催月日,競走が行われた月日,34516,34516,100.0,MMDD形式 例:0526,,True,A,払戻オッズ（3連単）
+jrd_kyi,kakutoku_shokin_ruikei,kakutoku_shokin_ruikei,kakutoku_shokin_ruikeiフィールド,4828,3152,65.29,,,,,
+jvd_h1,keibajo_code,競馬場コード,競馬場の識別コード,34516,34516,100.0,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,A,払戻オッズ（単勝・複勝）
+jvd_h6,keibajo_code,競馬場コード,競馬場の識別コード,34516,34516,100.0,01:札幌 02:函館 03:福島 04:新潟 05:東京 06:中山 07:中京 08:京都 09:阪神 10:小倉,,True,A,払戻オッズ（3連単）
+jvd_bt,keito_id,keito_id,keito_idフィールド,92,92,100.0,,,,,
+jvd_bt,keito_mei,keito_mei,keito_meiフィールド,92,92,100.0,,,,,
+jvd_hc,ketto_toroku_bango,血統登録番号,馬の一意識別番号（JRA公式）,11663431,11663431,100.0,,,,,
+jrd_kyi,kijun_ninkijun_fukusho,kijun_ninkijun_fukusho,kijun_ninkijun_fukushoフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kijun_ninkijun_tansho,kijun_ninkijun_tansho,kijun_ninkijun_tanshoフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kijun_odds_fukusho,kijun_odds_fukusho,kijun_odds_fukushoフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kijun_odds_tansho,kijun_odds_tansho,kijun_odds_tanshoフィールド,4828,3152,65.29,,,,,
+jrd_joa,kishu_bb_nijumaru_rentai_ritsu,kishu_bb_nijumaru_rentai_ritsu,kishu_bb_nijumaru_rentai_ritsuフィールド,4828,3152,65.29,,,,,
+jrd_joa,kishu_bb_nijumaru_tansho_kaishuritsu,kishu_bb_nijumaru_tansho_kaishuritsu,kishu_bb_nijumaru_tansho_kaishuritsuフィールド,4828,3152,65.29,,,,,
+jrd_joa,kishu_bb_shirushi,kishu_bb_shirushi,kishu_bb_shirushiフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kishu_code,騎手コード,騎手の固有コード（JRA公式）,4828,3152,65.29,,,,,
+jrd_kyi,kishu_kitai_rentai_ritsu,kishu_kitai_rentai_ritsu,kishu_kitai_rentai_ritsuフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kishu_kitai_sanchakunai_ritsu,kishu_kitai_sanchakunai_ritsu,kishu_kitai_sanchakunai_ritsuフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kishu_kitai_tansho_ritsu,kishu_kitai_tansho_ritsu,kishu_kitai_tansho_ritsuフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kishu_shisu,騎手指数,JRDBの騎手能力指数,4828,4828,100.0,,,,,
+jrd_sed,kohan_3f,kohan_3f,kohan_3fフィールド,3696,2464,66.67,,,,,
+jvd_ra,kohan_3f,kohan_3f,kohan_3fフィールド,59851,59851,100.0,,,,,
+jrd_kyi,kohan_3f_juni,kohan_3f_juni,kohan_3f_juniフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kohan_3f_sa,kohan_3f_sa,kohan_3f_saフィールド,4828,3152,65.29,,,,,
+jrd_sed,kohan_3f_sento_sa,kohan_3f_sento_sa,kohan_3f_sento_saフィールド,3696,2464,66.67,,,,,
+jrd_kyi,kohan_3f_uchisoto,kohan_3f_uchisoto,kohan_3f_uchisotoフィールド,4828,3152,65.29,,,,,
+jvd_ra,kohan_4f,kohan_4f,kohan_4fフィールド,59851,59851,100.0,,,,,
+jrd_kyi,kyakushitsu_code,kyakushitsuコード,kyakushitsuの識別コード,4828,3152,65.29,,,,,
+jrd_kyi,kyori_tekisei_code,kyoritekiseiコード,kyoritekiseiの識別コード,4828,3152,65.29,,,,,
+jrd_joa,kyusha_bb_nijumaru_rentai_ritsu,kyusha_bb_nijumaru_rentai_ritsu,kyusha_bb_nijumaru_rentai_ritsuフィールド,4828,3152,65.29,,,,,
+jrd_joa,kyusha_bb_nijumaru_tansho_kaishuritsu,kyusha_bb_nijumaru_tansho_kaishuritsu,kyusha_bb_nijumaru_tansho_kaishuritsuフィールド,4828,3152,65.29,,,,,
+jrd_joa,kyusha_bb_shirushi,kyusha_bb_shirushi,kyusha_bb_shirushiフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kyusha_hyoka_code,kyushahyokaコード,kyushahyokaの識別コード,4828,3152,65.29,,,,,
+jrd_kyi,kyusha_rank,kyusha_rank,kyusha_rankフィールド,4828,3152,65.29,,,,,
+jrd_kyi,kyusha_shisu,厩舎指数,厩舎の状態評価指数,4828,3152,65.29,,,,,
+jrd_kyi,kyuyo_riyu_bunrui_code,kyuyoriyubunruiコード,kyuyoriyubunruiの識別コード,4828,3152,65.29,,,,,
+jvd_wc,lap_time_10f,ラップタイム10F,10ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_hc,lap_time_1f,ラップタイム1F,1ハロン地点のラップタイム,11663431,11663431,100.0,,,,,
+jvd_wc,lap_time_1f,ラップタイム1F,1ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_hc,lap_time_2f,ラップタイム2F,2ハロン地点のラップタイム,11663431,11663431,100.0,,,,,
+jvd_wc,lap_time_2f,ラップタイム2F,2ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_hc,lap_time_3f,ラップタイム3F,3ハロン地点のラップタイム,11663431,11663431,100.0,,,,,
+jvd_wc,lap_time_3f,ラップタイム3F,3ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_hc,lap_time_4f,ラップタイム4F,4ハロン地点のラップタイム,11663431,11663431,100.0,,,,,
+jvd_wc,lap_time_4f,ラップタイム4F,4ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_wc,lap_time_5f,ラップタイム5F,5ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_wc,lap_time_6f,ラップタイム6F,6ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_wc,lap_time_7f,ラップタイム7F,7ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_wc,lap_time_8f,ラップタイム8F,8ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jvd_wc,lap_time_9f,ラップタイム9F,9ハロン地点のラップタイム,699070,699070,100.0,,,,,
+jrd_joa,ls_hyoka,ls_hyoka,ls_hyokaフィールド,4828,3152,65.29,,,,,
+jrd_joa,ls_shisu,LS指数,JRDBラスト3F速度指数,4828,3152,65.29,,,,,
+jrd_kyi,ls_shisu_juni,ls_shisu_juni,ls_shisu_juniフィールド,4828,3152,65.29,,,,,
+jrd_kyi,manken_shirushi,manken_shirushi,manken_shirushiフィールド,4828,3152,65.29,,,,,
+jrd_kyi,manken_shisu,manken指数,JRDB manken指数,4828,3152,65.29,,,,,
+jvd_hn,mochikomi_kubun,持込区分,外国産馬持込の区分,161003,161003,100.0,,,,,
+jvd_hn,moshoku_code,毛色コード,馬の毛色,161003,161003,100.0,,,,,
+jrd_cyb,oikiri_corse_isshumae,追切コース一週前,一週前の追切コース,3081,2054,66.67,,,,,
+jrd_cyb,oikiri_shisu,追切指数,追切評価の数値,3081,2054,66.67,,,,,
+jrd_cyb,oikiri_shisu_isshumae,追切指数一週前,一週前の追切指数,3081,2054,66.67,,,,,
+jrd_sed,pace,ペース,前半・後半のペース区分,3696,2464,66.67,,,,,
+jrd_kyi,pace_shisu,ペース指数,ペース評価指数,4828,3152,65.29,,,,,
+jrd_sed,pace_shisu,ペース指数,ペース評価指数,3696,2464,66.67,,,,,
+jrd_kyi,pace_shisu_juni,pace_shisu_juni,pace_shisu_juniフィールド,4828,3152,65.29,,,,,
+jrd_kyi,pace_yoso,pace_yoso,pace_yosoフィールド,4828,3152,65.29,,,,,
+jvd_h1,race_bango,レース番号,その日のレース番号,34516,34516,100.0,01〜12,,True,A,払戻オッズ（単勝・複勝）
+jvd_h6,race_bango,レース番号,その日のレース番号,34516,34516,100.0,01〜12,,True,A,払戻オッズ（3連単）
+jrd_sed,race_p_shisu,racep指数,JRDB racep指数,3696,2464,66.67,,,,,
+jvd_hn,sanchimei,産地名,生産地名（国内:都道府県、外国:国名）,161003,161003,100.0,,,,,
+jvd_hn,seibetsu_code,性別コード,馬の性別,161003,161003,100.0,,,,,
+jvd_br,seisansha_code,生産者コード,生産牧場の固有コード,10710,10710,100.0,,,,,
+jrd_cyb,shiage_shisu,仕上指数,仕上がり状態の数値,3081,2054,66.67,,,,,
+jrd_cyb,shiage_shisu_henka,仕上指数変化,前週比の仕上指数変化,3081,2054,66.67,,,,,
+jvd_h1,shusso_tosu,出走頭数,実際に出走した頭数,34516,34516,100.0,,,True,A,払戻オッズ（単勝・複勝）
+jvd_h6,shusso_tosu,出走頭数,実際に出走した頭数,34516,34516,100.0,,,True,A,払戻オッズ（3連単）
+jrd_kyi,shutoku_shokin_ruikei,shutoku_shokin_ruikei,shutoku_shokin_ruikeiフィールド,4828,3152,65.29,,,,,
+jrd_kyi,sogo_shisu,総合指数,総合的な能力評価指数,4828,3152,65.29,,,,,
+jrd_kyi,taikei,taikei,taikeiフィールド,4828,3152,65.29,,,,,
+jrd_kyi,taikei_sogo_1,taikei_sogo_1,taikei_sogo_1フィールド,4828,3152,65.29,,,,,
+jrd_kyi,taikei_sogo_2,taikei_sogo_2,taikei_sogo_2フィールド,4828,3152,65.29,,,,,
+jrd_kyi,taikei_sogo_3,taikei_sogo_3,taikei_sogo_3フィールド,4828,3152,65.29,,,,,
+jrd_kyi,tekisei_code_omo,tekisei_code_omo,tekisei_code_omoフィールド,4828,3152,65.29,,,,,
+jrd_kyi,ten_shisu,テン指数,序盤（最初の3F）の速さ指数,4828,3152,65.29,,,,,
+jrd_sed,ten_shisu,テン指数,序盤（最初の3F）の速さ指数,3696,2464,66.67,,,,,
+jrd_kyi,ten_shisu_juni,ten_shisu_juni,ten_shisu_juniフィールド,4828,3152,65.29,,,,,
+jrd_sed,tenko_code,天候コード,レース当日の天候,3696,2464,66.67,,,,,
+jvd_wc,time_gokei_10f,time_gokei_10f,time_gokei_10fフィールド,699070,699070,100.0,,,,,
+jvd_hc,time_gokei_2f,time_gokei_2f,time_gokei_2fフィールド,11663431,11663431,100.0,,,,,
+jvd_wc,time_gokei_2f,time_gokei_2f,time_gokei_2fフィールド,699070,699070,100.0,,,,,
+jvd_hc,time_gokei_3f,time_gokei_3f,time_gokei_3fフィールド,11663431,11663431,100.0,,,,,
+jvd_wc,time_gokei_3f,time_gokei_3f,time_gokei_3fフィールド,699070,699070,100.0,,,,,
+jvd_hc,time_gokei_4f,time_gokei_4f,time_gokei_4fフィールド,11663431,11663431,100.0,,,,,
+jvd_wc,time_gokei_4f,time_gokei_4f,time_gokei_4fフィールド,699070,699070,100.0,,,,,
+jvd_wc,time_gokei_5f,time_gokei_5f,time_gokei_5fフィールド,699070,699070,100.0,,,,,
+jvd_wc,time_gokei_6f,time_gokei_6f,time_gokei_6fフィールド,699070,699070,100.0,,,,,
+jvd_wc,time_gokei_7f,time_gokei_7f,time_gokei_7fフィールド,699070,699070,100.0,,,,,
+jvd_wc,time_gokei_8f,time_gokei_8f,time_gokei_8fフィールド,699070,699070,100.0,,,,,
+jvd_wc,time_gokei_9f,time_gokei_9f,time_gokei_9fフィールド,699070,699070,100.0,,,,,
+jvd_ch,tozai_shozoku_code,東西所属コード,馬の東西所属,1472,1472,100.0,,,,,
+jrd_kyi,uma_deokure_ritsu,uma_deokure_ritsu,uma_deokure_ritsuフィールド,4828,3152,65.29,,,,,
+jrd_kyi,uma_start_shisu,umastart指数,JRDB umastart指数,4828,3152,65.29,,,,,
+jrd_kyi,uma_tokki_1,uma_tokki_1,uma_tokki_1フィールド,4828,3152,65.29,,,,,
+jrd_kyi,uma_tokki_2,uma_tokki_2,uma_tokki_2フィールド,4828,3152,65.29,,,,,
+jrd_kyi,uma_tokki_3,uma_tokki_3,uma_tokki_3フィールド,4828,3152,65.29,,,,,
+jvd_hn,yunyu_nen,輸入年,外国産馬の輸入年,161003,161003,100.0,,,,,
+jrd_kyi,yuso_kubun,yuso_kubun,yuso_kubunフィールド,4828,3152,65.29,,,,,
+jvd_ra,zenhan_3f,zenhan_3f,zenhan_3fフィールド,59851,59851,100.0,,,,,
+jrd_sed,zenhan_3f_sento_sa,zenhan_3f_sento_sa,zenhan_3f_sento_saフィールド,3696,2464,66.67,,,,,
+jrd_sed,zenhan_3f_taimu,zenhan_3f_taimu,zenhan_3f_taimuフィールド,3696,2464,66.67,,,,,
+jvd_ra,zenhan_4f,zenhan_4f,zenhan_4fフィールド,59851,59851,100.0,,,,,

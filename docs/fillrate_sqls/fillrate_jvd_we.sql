@@ -1,0 +1,40 @@
+-- 充填率チェック: jvd_we (16カラム)
+-- 実行時間: 約1-5分
+
+SELECT
+    'jvd_we' AS table_name,
+    COUNT(*) AS total_records,
+    COUNT(record_id) AS cnt_record_id,
+    ROUND(COUNT(record_id)::NUMERIC / COUNT(*) * 100, 2) AS rate_record_id,
+    COUNT(data_kubun) AS cnt_data_kubun,
+    ROUND(COUNT(data_kubun)::NUMERIC / COUNT(*) * 100, 2) AS rate_data_kubun,
+    COUNT(data_sakusei_nengappi) AS cnt_data_sakusei_nengappi,
+    ROUND(COUNT(data_sakusei_nengappi)::NUMERIC / COUNT(*) * 100, 2) AS rate_data_sakusei_nengappi,
+    COUNT(kaisai_nen) AS cnt_kaisai_nen,
+    ROUND(COUNT(kaisai_nen)::NUMERIC / COUNT(*) * 100, 2) AS rate_kaisai_nen,
+    COUNT(kaisai_tsukihi) AS cnt_kaisai_tsukihi,
+    ROUND(COUNT(kaisai_tsukihi)::NUMERIC / COUNT(*) * 100, 2) AS rate_kaisai_tsukihi,
+    COUNT(keibajo_code) AS cnt_keibajo_code,
+    ROUND(COUNT(keibajo_code)::NUMERIC / COUNT(*) * 100, 2) AS rate_keibajo_code,
+    COUNT(kaisai_kai) AS cnt_kaisai_kai,
+    ROUND(COUNT(kaisai_kai)::NUMERIC / COUNT(*) * 100, 2) AS rate_kaisai_kai,
+    COUNT(kaisai_nichime) AS cnt_kaisai_nichime,
+    ROUND(COUNT(kaisai_nichime)::NUMERIC / COUNT(*) * 100, 2) AS rate_kaisai_nichime,
+    COUNT(happyo_tsukihi_jifun) AS cnt_happyo_tsukihi_jifun,
+    ROUND(COUNT(happyo_tsukihi_jifun)::NUMERIC / COUNT(*) * 100, 2) AS rate_happyo_tsukihi_jifun,
+    COUNT(henko_shikibetsu) AS cnt_henko_shikibetsu,
+    ROUND(COUNT(henko_shikibetsu)::NUMERIC / COUNT(*) * 100, 2) AS rate_henko_shikibetsu,
+    COUNT(tenko_code) AS cnt_tenko_code,
+    ROUND(COUNT(tenko_code)::NUMERIC / COUNT(*) * 100, 2) AS rate_tenko_code,
+    COUNT(babajotai_code_shiba) AS cnt_babajotai_code_shiba,
+    ROUND(COUNT(babajotai_code_shiba)::NUMERIC / COUNT(*) * 100, 2) AS rate_babajotai_code_shiba,
+    COUNT(babajotai_code_dirt) AS cnt_babajotai_code_dirt,
+    ROUND(COUNT(babajotai_code_dirt)::NUMERIC / COUNT(*) * 100, 2) AS rate_babajotai_code_dirt,
+    COUNT(tenko_code_henkomae) AS cnt_tenko_code_henkomae,
+    ROUND(COUNT(tenko_code_henkomae)::NUMERIC / COUNT(*) * 100, 2) AS rate_tenko_code_henkomae,
+    COUNT(babajotai_code_shiba_henkomae) AS cnt_babajotai_code_shiba_henkomae,
+    ROUND(COUNT(babajotai_code_shiba_henkomae)::NUMERIC / COUNT(*) * 100, 2) AS rate_babajotai_code_shiba_henkomae,
+    COUNT(babajotai_code_dirt_henkomae) AS cnt_babajotai_code_dirt_henkomae,
+    ROUND(COUNT(babajotai_code_dirt_henkomae)::NUMERIC / COUNT(*) * 100, 2) AS rate_babajotai_code_dirt_henkomae
+FROM jvd_we
+;
